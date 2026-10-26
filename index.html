@@ -2,385 +2,209 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>브리즈번</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>김혜진 | 국립공주대학교 문헌정보교육과</title>
+<meta name="description" content="문헌정보학을 바탕으로 사람과 정보, 기술의 관계를 연구하는 김혜진의 홈페이지입니다.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap">
-
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@500;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #ffffff;
-    --ink: #202124;
-    --ink-soft: #5f6368;
-    --border: #dfe1e5;
-    --border-strong: #dadce0;
-    --surface: #f8f9fa;
-    --accent: #1a73e8;
-    --focus-ring: rgba(26, 115, 232, 0.22);
-    --footer-bg: #f2f2f2;
-    --footer-border: #e4e4e4;
-  }
+:root{
+  --bg:#F2F5F7; --surface:#E7EDF1; --ink:#17212B; --muted:#55636F;
+  --accent:#0C6670; --line:#C6D1D9; --node:#0C6670;
+  --serif:"Noto Serif KR","Nanum Myeongjo",serif;
+  --sans:"IBM Plex Sans KR","Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#10171D; --surface:#18222B; --ink:#E6ECF0; --muted:#98A8B4; --accent:#5CC4CC; --line:#2C3A46; --node:#5CC4CC;}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.8;word-break:keep-all}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:2px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 28px}
 
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #202124;
-      --ink: #e8eaed;
-      --ink-soft: #9aa0a6;
-      --border: #5f6368;
-      --border-strong: #71767a;
-      --surface: #303134;
-      --accent: #8ab4f8;
-      --focus-ring: rgba(138, 180, 248, 0.25);
-      --footer-bg: #171717;
-      --footer-border: #2a2a2a;
-    }
-  }
+header.nav{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;justify-content:space-between;align-items:center;height:58px}
+.nav .brand{font-family:var(--serif);font-weight:700;color:var(--ink);text-decoration:none;font-size:18px}
+.nav ul{display:flex;gap:22px;list-style:none;margin:0;padding:0;font-size:15px}
+.nav ul a{color:var(--muted);text-decoration:none}
+.nav ul a:hover{color:var(--accent)}
 
-  :root[data-theme="dark"] {
-    --bg: #202124;
-    --ink: #e8eaed;
-    --ink-soft: #9aa0a6;
-    --border: #5f6368;
-    --border-strong: #71767a;
-    --surface: #303134;
-    --accent: #8ab4f8;
-    --focus-ring: rgba(138, 180, 248, 0.25);
-    --footer-bg: #171717;
-    --footer-border: #2a2a2a;
-  }
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.hero .wrap{display:grid;grid-template-columns:1.25fr .75fr;gap:32px;align-items:center;padding-top:96px;padding-bottom:104px}
+.hero h1{font-family:var(--serif);font-weight:700;font-size:clamp(32px,5vw,54px);line-height:1.3;letter-spacing:-.02em;margin:0 0 28px}
+.hero p.lead{font-size:18px;color:var(--muted);max-width:34em;margin:0 0 36px}
+.hero .who{font-weight:600;margin:0}
+.hero .who span{display:block;font-weight:400;color:var(--muted);font-size:15px}
+.net{width:100%;height:auto;max-width:380px;justify-self:end}
+.net line{stroke:var(--line);stroke-width:1.5}
+.net .hot{stroke:var(--accent);stroke-width:2}
+.net circle{fill:var(--bg);stroke:var(--node);stroke-width:2}
+.net circle.fill{fill:var(--node)}
+.net .draw{stroke-dasharray:140;stroke-dashoffset:140;animation:draw 1.6s ease-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){.net .draw{animation:none;stroke-dashoffset:0}html{scroll-behavior:auto}}
 
-  * { box-sizing: border-box; }
+section{padding:88px 0;border-bottom:1px solid var(--line)}
+section:last-of-type{border-bottom:0}
+h2{font-family:var(--serif);font-size:30px;line-height:1.3;margin:0 0 36px;letter-spacing:-.01em}
+.cols{display:grid;grid-template-columns:200px 1fr;gap:40px}
+.cols>h2{margin:0}
+.prose p{margin:0 0 1.2em;max-width:38em}
+.prose p:last-child{margin-bottom:0}
 
-  html, body {
-    height: 100%;
-  }
+dl.interests{margin:0}
+dl.interests .row{display:grid;grid-template-columns:230px 1fr;gap:28px;padding:24px 0;border-top:1px solid var(--line)}
+dl.interests .row:last-child{border-bottom:1px solid var(--line)}
+dl.interests dt{font-family:var(--serif);font-weight:700;font-size:19px;line-height:1.5}
+dl.interests dd{margin:0;color:var(--muted)}
 
-  body {
-    margin: 0;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    background: var(--bg);
-    color: var(--ink);
-    font-family: "Noto Sans KR", "Roboto", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
+.projects{list-style:none;margin:0;padding:0}
+.projects a.proj{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:26px 28px;background:var(--surface);border-left:4px solid var(--accent);text-decoration:none;color:var(--ink);font-family:var(--serif);font-weight:700;font-size:20px}
+.projects a.proj small{font-family:var(--sans);font-weight:400;font-size:14px;color:var(--accent)}
+.projects a.proj:hover{background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
 
-  main {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem 1.5rem 4.5rem;
-  }
+footer{background:var(--surface);padding:64px 0 72px}
+footer h2{margin-bottom:16px}
+footer p{margin:0;color:var(--muted)}
+footer a.mail{display:inline-block;margin-top:12px;font-size:20px;font-weight:500}
+footer small{display:block;margin-top:48px;color:var(--muted);font-size:14px}
 
-  .page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-width: 560px;
-  }
-
-  .clock {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    line-height: 1;
-    font-family: "Roboto", Arial, sans-serif;
-    font-weight: 300;
-    font-variant-numeric: tabular-nums;
-    font-size: clamp(3.75rem, 13vw, 6.75rem);
-    letter-spacing: -0.01em;
-    color: var(--ink);
-  }
-
-  .clock .colon {
-    color: var(--accent);
-    animation: blink 2s steps(1) infinite;
-    padding: 0 0.03em;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .clock .colon { animation: none; }
-  }
-
-  @keyframes blink {
-    0%, 45% { opacity: 1; }
-    50%, 95% { opacity: 0.25; }
-    100% { opacity: 1; }
-  }
-
-  .clock .sec {
-    font-family: "Roboto", Arial, sans-serif;
-    font-size: 0.3em;
-    font-weight: 400;
-    color: var(--ink-soft);
-    padding: 0 0 0.6em 0.4em;
-  }
-
-  .date {
-    margin-top: 0.4rem;
-    font-size: clamp(0.9rem, 2.1vw, 1.05rem);
-    font-weight: 400;
-    color: var(--ink-soft);
-    text-align: center;
-  }
-
-  .search {
-    margin-top: 2.25rem;
-    width: min(560px, 92vw);
-  }
-
-  .search-field {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 0.7rem 1.25rem;
-    transition: box-shadow 0.15s ease, border-color 0.15s ease;
-  }
-
-  .search-field:hover {
-    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.18);
-    border-color: transparent;
-  }
-
-  .search-field:focus-within {
-    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.22);
-    border-color: transparent;
-  }
-
-  .search-field svg {
-    flex: none;
-    width: 19px;
-    height: 19px;
-    stroke: var(--ink-soft);
-  }
-
-  .search-field input {
-    flex: 1;
-    min-width: 0;
-    border: none;
-    outline: none;
-    background: transparent;
-    color: var(--ink);
-    font-family: "Noto Sans KR", "Roboto", Arial, sans-serif;
-    font-size: 1rem;
-    font-weight: 400;
-  }
-
-  .search-field input::placeholder {
-    color: var(--ink-soft);
-    opacity: 0.85;
-  }
-
-  .go {
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2px;
-    margin: -2px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-  }
-
-  .go svg {
-    transition: stroke 0.15s ease;
-  }
-
-  .go:hover svg {
-    stroke: var(--accent);
-  }
-
-  .go:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-
-  .search-field input:focus-visible {
-    outline: none;
-  }
-
-  footer.world {
-    display: flex;
-    align-items: baseline;
-    justify-content: center;
-    gap: clamp(1.1rem, 4vw, 2.2rem);
-    flex-wrap: wrap;
-    background: var(--footer-bg);
-    border-top: 1px solid var(--footer-border);
-    padding: 0.85rem 1.5rem;
-  }
-
-  .tz {
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-  }
-
-  .tz-city {
-    font-family: "Noto Sans KR", "Roboto", Arial, sans-serif;
-    font-size: 0.72rem;
-    font-weight: 500;
-    letter-spacing: 0.02em;
-    color: var(--ink-soft);
-  }
-
-  .tz-time {
-    font-family: "Roboto", Arial, sans-serif;
-    font-size: 0.85rem;
-    font-weight: 500;
-    font-variant-numeric: tabular-nums;
-    color: var(--ink);
-  }
-
-  .tz-offset {
-    font-family: "Noto Sans KR", "Roboto", Arial, sans-serif;
-    font-size: 0.72rem;
-    font-weight: 400;
-    color: var(--accent);
-    opacity: 0.9;
-  }
-
-  .tz-divider {
-    width: 1px;
-    height: 0.9rem;
-    align-self: center;
-    background: var(--border-strong);
-  }
+@media (max-width:760px){
+  body{font-size:16px}
+  .wrap{padding:0 20px}
+  .nav ul{gap:14px;font-size:14px}
+  .nav .brand{font-size:16px}
+  .hero .wrap{grid-template-columns:1fr;padding-top:56px;padding-bottom:64px}
+  .net{max-width:240px;justify-self:start;order:-1}
+  section{padding:60px 0}
+  .cols,dl.interests .row{grid-template-columns:1fr;gap:10px}
+  .cols>h2{margin-bottom:16px}
+}
 </style>
 </head>
 <body>
 
-<main>
-  <div class="page">
-    <div class="clock" aria-label="현재 시각">
-      <span id="hh">00</span><span class="colon">:</span><span id="mm">00</span><span class="sec" id="ss">00</span>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top">김혜진</a>
+    <nav aria-label="주요 메뉴">
+      <ul>
+        <li><a href="#about">소개</a></li>
+        <li><a href="#interests">관심사</a></li>
+        <li><a href="#teaching">교육</a></li>
+        <li><a href="#projects">프로젝트</a></li>
+        <li><a href="#contact">연락</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <h1>정보를 이해하는 힘,<br>AI와 함께 배우는<br>가능성을 탐구합니다.</h1>
+        <p class="lead">문헌정보학을 바탕으로 사람과 정보, 기술의 관계를 연구합니다. AI 시대에 필요한 리터러시 교육과 데이터 분석을 통해 교육과 연구의 새로운 가능성을 찾아갑니다.</p>
+        <p class="who">김혜진<span>국립공주대학교 문헌정보교육과</span></p>
+      </div>
+      <svg class="net" viewBox="0 0 320 320" role="img" aria-label="점과 선으로 연결된 지식 네트워크 그림">
+        <g>
+          <line x1="60" y1="80" x2="150" y2="130"/>
+          <line x1="150" y1="130" x2="250" y2="70"/>
+          <line x1="150" y1="130" x2="130" y2="230"/>
+          <line x1="250" y1="70" x2="270" y2="190"/>
+          <line x1="130" y1="230" x2="60" y2="270"/>
+          <line x1="130" y1="230" x2="240" y2="270"/>
+          <line x1="270" y1="190" x2="240" y2="270"/>
+          <line x1="60" y1="80" x2="50" y2="170"/>
+          <line x1="50" y1="170" x2="130" y2="230"/>
+        </g>
+        <g>
+          <line class="hot draw" x1="60" y1="80" x2="150" y2="130"/>
+          <line class="hot draw" x1="150" y1="130" x2="130" y2="230" style="animation-delay:.7s"/>
+          <line class="hot draw" x1="130" y1="230" x2="240" y2="270" style="animation-delay:1.2s"/>
+        </g>
+        <circle cx="60" cy="80" r="9" class="fill"/>
+        <circle cx="150" cy="130" r="16" class="fill"/>
+        <circle cx="250" cy="70" r="10"/>
+        <circle cx="130" cy="230" r="13" class="fill"/>
+        <circle cx="270" cy="190" r="8"/>
+        <circle cx="60" cy="270" r="8"/>
+        <circle cx="240" cy="270" r="10" class="fill"/>
+        <circle cx="50" cy="170" r="8"/>
+      </svg>
     </div>
+  </div>
 
-    <div class="date" id="date">불러오는 중…</div>
-
-    <div class="search">
-      <div class="search-field">
-        <a class="go" id="go" href="https://www.google.com/search" target="_blank" rel="noopener noreferrer" aria-label="Google 검색">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="7"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-        </a>
-        <input type="text" id="q" placeholder="Google 검색" autocomplete="off" autofocus>
+  <section id="about">
+    <div class="wrap cols">
+      <h2>나를 소개합니다</h2>
+      <div class="prose">
+        <p>안녕하세요. 국립공주대학교 문헌정보교육과에서 교육과 연구를 하고 있습니다.</p>
+        <p>사람들이 필요한 정보를 찾고, 그 가치를 판단하며, 자신의 지식으로 만들어 가는 과정에 관심이 있습니다. 특히 생성형 AI가 정보탐색과 학습에 가져오는 변화를 살펴보고, 이용자가 스스로 판단하고 책임 있게 활용할 수 있도록 돕는 교육을 고민합니다.</p>
+        <p>텍스트마이닝과 네트워크 분석을 활용하여 학술연구의 주제 변화와 지식의 흐름을 분석합니다. 수업에서는 학생들이 정보와 기술의 원리를 이해하고, 직접 만들고 실험하며 배울 수 있는 경험을 중요하게 생각합니다.</p>
       </div>
     </div>
-  </div>
+  </section>
+
+  <section id="interests">
+    <div class="wrap">
+      <h2>주요 관심사</h2>
+      <dl class="interests">
+        <div class="row">
+          <dt>AI·정보 리터러시</dt>
+          <dd>정보를 비판적으로 평가하고 생성형 AI를 주체적이고 책임 있게 활용하는 데 필요한 역량과 교육 방법을 탐구합니다.</dd>
+        </div>
+        <div class="row">
+          <dt>정보탐색과 정보행태</dt>
+          <dd>사람들이 어떤 상황에서 정보를 필요로 하고, 어떻게 탐색·평가·활용하는지 연구합니다. 생성형 AI 환경에서 달라지는 탐색 방식과 이용자의 판단 과정에 주목합니다.</dd>
+        </div>
+        <div class="row">
+          <dt>텍스트마이닝과 지식구조 분석</dt>
+          <dd>학술문헌과 텍스트 데이터를 분석하여 연구동향, 주제 간 관계, 지식의 발전 경로를 살펴봅니다.</dd>
+        </div>
+        <div class="row">
+          <dt>인간–AI 협업과 의미구성</dt>
+          <dd>AI와의 대화가 학습자의 사고와 창작에 어떤 영향을 미치는지, 그 과정에서 인간의 주체성이 어떻게 발휘되는지 탐구합니다.</dd>
+        </div>
+        <div class="row">
+          <dt>데이터와 AI를 활용한 교육</dt>
+          <dd>데이터베이스, 정보검색, 바이브코딩 실습을 통해 학생들이 아이디어를 구체적인 결과물로 구현하도록 돕는 수업을 설계합니다.</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section id="teaching">
+    <div class="wrap cols">
+      <h2>주요 교육 활동</h2>
+      <div class="prose">
+        <p>인공지능 리터러시, 정보행태론, 데이터베이스론 등을 가르치며 이론과 실습을 연결하는 수업을 운영합니다. 생성형 AI의 응답을 검토하고, 데이터를 분석하고, 웹페이지와 앱을 만드는 활동을 통해 학생들이 기술을 이해하며 활용할 수 있도록 돕습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="wrap">
+      <h2>개별 프로젝트 소개</h2>
+      <ul class="projects">
+        <li><a class="proj" href="todo-app.html">오늘의 할 일 관리 앱 <small>열어보기</small></a></li>
+      </ul>
+    </div>
+  </section>
 </main>
 
-<footer class="world" aria-label="다른 지역 시각">
-  <div class="tz">
-    <span class="tz-city">뉴욕</span>
-    <span class="tz-time" id="ny-time">--:--</span>
-    <span class="tz-offset" id="ny-offset"></span>
-  </div>
-  <span class="tz-divider" aria-hidden="true"></span>
-  <div class="tz">
-    <span class="tz-city">캘리포니아</span>
-    <span class="tz-time" id="la-time">--:--</span>
-    <span class="tz-offset" id="la-offset"></span>
+<footer id="contact">
+  <div class="wrap">
+    <h2>연락처</h2>
+    <p>연구와 수업에 대한 문의는 이메일로 보내 주세요.</p>
+    <a class="mail" href="mailto:erin.hj.kim@kongju.ac.kr">erin.hj.kim@kongju.ac.kr</a>
+    <small>© 김혜진 · 국립공주대학교 문헌정보교육과</small>
   </div>
 </footer>
 
-<script>
-  var SEOUL = "Asia/Seoul";
-  var NEW_YORK = "America/New_York";
-  var CALIFORNIA = "America/Los_Angeles";
-
-  function clockParts(date, timeZone) {
-    var parts = new Intl.DateTimeFormat("en-GB", {
-      timeZone: timeZone,
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false
-    }).formatToParts(date);
-    var out = {};
-    parts.forEach(function (p) { out[p.type] = p.value; });
-    return out;
-  }
-
-  function isoDate(date, timeZone) {
-    return new Intl.DateTimeFormat("en-CA", {
-      timeZone: timeZone,
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit"
-    }).format(date);
-  }
-
-  function dayOffsetLabel(date, timeZone) {
-    var base = isoDate(date, SEOUL);
-    var other = isoDate(date, timeZone);
-    if (base === other) return "";
-    var diff = Math.round(
-      (new Date(other + "T00:00:00Z") - new Date(base + "T00:00:00Z")) / 86400000
-    );
-    if (diff === -1) return "어제";
-    if (diff === 1) return "내일";
-    return (diff > 0 ? "+" : "") + diff + "일";
-  }
-
-  function tick() {
-    var now = new Date();
-
-    var seoul = clockParts(now, SEOUL);
-    document.getElementById("hh").textContent = seoul.hour;
-    document.getElementById("mm").textContent = seoul.minute;
-    document.getElementById("ss").textContent = seoul.second;
-
-    document.getElementById("date").textContent = new Intl.DateTimeFormat("ko-KR", {
-      timeZone: SEOUL,
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      weekday: "long"
-    }).format(now);
-
-    var ny = clockParts(now, NEW_YORK);
-    document.getElementById("ny-time").textContent = ny.hour + ":" + ny.minute;
-    document.getElementById("ny-offset").textContent = dayOffsetLabel(now, NEW_YORK);
-
-    var la = clockParts(now, CALIFORNIA);
-    document.getElementById("la-time").textContent = la.hour + ":" + la.minute;
-    document.getElementById("la-offset").textContent = dayOffsetLabel(now, CALIFORNIA);
-  }
-
-  tick();
-  setInterval(tick, 1000);
-
-  var input = document.getElementById("q");
-  var go = document.getElementById("go");
-
-  function updateSearchLink() {
-    var query = input.value.trim();
-    go.href = query
-      ? "https://www.google.com/search?q=" + encodeURIComponent(query)
-      : "https://www.google.com/";
-  }
-
-  input.addEventListener("input", updateSearchLink);
-  input.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      updateSearchLink();
-      go.click();
-    }
-  });
-  updateSearchLink();
-</script>
 </body>
 </html>
