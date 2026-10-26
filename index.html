@@ -1,210 +1,510 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>김혜진 | 국립공주대학교 문헌정보교육과</title>
-<meta name="description" content="문헌정보학을 바탕으로 사람과 정보, 기술의 관계를 연구하는 김혜진의 홈페이지입니다.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@500;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#F2F5F7; --surface:#E7EDF1; --ink:#17212B; --muted:#55636F;
-  --accent:#0C6670; --line:#C6D1D9; --node:#0C6670;
-  --serif:"Noto Serif KR","Nanum Myeongjo",serif;
-  --sans:"IBM Plex Sans KR","Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-}
-@media (prefers-color-scheme:dark){
-  :root{--bg:#10171D; --surface:#18222B; --ink:#E6ECF0; --muted:#98A8B4; --accent:#5CC4CC; --line:#2C3A46; --node:#5CC4CC;}
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.8;word-break:keep-all}
-a{color:var(--accent)}
-:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:2px}
-.wrap{max-width:1040px;margin:0 auto;padding:0 28px}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f6f2">
+  <meta name="description" content="김혜진의 소개, 연구 관심사, 교육 활동 및 프로젝트를 소개하는 개인 홈페이지입니다.">
+  <title>김혜진 | 문헌정보학 · AI 리터러시</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f6f2;
+      --surface: #ffffff;
+      --text: #202820;
+      --muted: #667168;
+      --accent: #315b4b;
+      --accent-soft: #e6eee8;
+      --line: #e2e5de;
+      --shadow: 0 18px 50px rgba(31, 47, 37, .07);
+      --radius: 22px;
+      --content: 1080px;
+    }
 
-header.nav{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.nav .wrap{display:flex;justify-content:space-between;align-items:center;height:58px}
-.nav .brand{font-family:var(--serif);font-weight:700;color:var(--ink);text-decoration:none;font-size:18px}
-.nav ul{display:flex;gap:22px;list-style:none;margin:0;padding:0;font-size:15px}
-.nav ul a{color:var(--muted);text-decoration:none}
-.nav ul a:hover{color:var(--accent)}
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 92px; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Pretendard", "Noto Sans KR", -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.75;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+    a { color: inherit; }
+    a:focus-visible, button:focus-visible {
+      outline: 3px solid #7aa68d;
+      outline-offset: 4px;
+      border-radius: 5px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, h3 { line-height: 1.3; letter-spacing: -.035em; }
+    p { margin-bottom: 1rem; }
+    .container { width: min(var(--content), calc(100% - 48px)); margin-inline: auto; }
 
-.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
-.hero .wrap{display:grid;grid-template-columns:1.25fr .75fr;gap:32px;align-items:center;padding-top:96px;padding-bottom:104px}
-.hero h1{font-family:var(--serif);font-weight:700;font-size:clamp(32px,5vw,54px);line-height:1.3;letter-spacing:-.02em;margin:0 0 28px}
-.hero p.lead{font-size:18px;color:var(--muted);max-width:34em;margin:0 0 36px}
-.hero .who{font-weight:600;margin:0}
-.hero .who span{display:block;font-weight:400;color:var(--muted);font-size:15px}
-.net{width:100%;height:auto;max-width:380px;justify-self:end}
-.net line{stroke:var(--line);stroke-width:1.5}
-.net .hot{stroke:var(--accent);stroke-width:2}
-.net circle{fill:var(--bg);stroke:var(--node);stroke-width:2}
-.net circle.fill{fill:var(--node)}
-.net .draw{stroke-dasharray:140;stroke-dashoffset:140;animation:draw 1.6s ease-out .2s forwards}
-@keyframes draw{to{stroke-dashoffset:0}}
-@media (prefers-reduced-motion:reduce){.net .draw{animation:none;stroke-dashoffset:0}html{scroll-behavior:auto}}
+    /* SECTION 01: 사이트 헤더 */
+    #site-header {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(76px, 12vw, 142px) 0 88px;
+      background:
+        radial-gradient(ellipse at 85% 15%, rgba(193, 214, 197, .55), transparent 32%),
+        linear-gradient(135deg, #eef1e8 0%, #f7f6f2 68%);
+      border-bottom: 1px solid var(--line);
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+      color: var(--accent);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 28px;
+      height: 2px;
+      background: currentColor;
+    }
+    #site-header h1 {
+      margin-bottom: 20px;
+      font-size: clamp(3rem, 8vw, 6.5rem);
+      font-weight: 800;
+      letter-spacing: -.075em;
+    }
+    .hero-intro {
+      max-width: 780px;
+      margin-bottom: 18px;
+      color: var(--accent);
+      font-size: clamp(1.35rem, 3vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1.5;
+      letter-spacing: -.045em;
+    }
+    .hero-description {
+      max-width: 690px;
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 1.8vw, 1.12rem);
+    }
+    .hero-mark {
+      position: absolute;
+      right: max(5vw, calc((100vw - var(--content)) / 2));
+      bottom: 44px;
+      width: clamp(110px, 17vw, 210px);
+      aspect-ratio: 1;
+      border: 1px solid rgba(49, 91, 75, .2);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .hero-mark::before, .hero-mark::after {
+      content: "";
+      position: absolute;
+      inset: 15%;
+      border: 1px solid rgba(49, 91, 75, .2);
+      border-radius: 50%;
+    }
+    .hero-mark::after { inset: 30%; background: rgba(49, 91, 75, .05); }
 
-section{padding:88px 0;border-bottom:1px solid var(--line)}
-section:last-of-type{border-bottom:0}
-h2{font-family:var(--serif);font-size:30px;line-height:1.3;margin:0 0 36px;letter-spacing:-.01em}
-.cols{display:grid;grid-template-columns:200px 1fr;gap:40px}
-.cols>h2{margin:0}
-.prose p{margin:0 0 1.2em;max-width:38em}
-.prose p:last-child{margin-bottom:0}
+    /* SECTION 02: 내비게이션 */
+    #site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(247, 246, 242, .92);
+      border-bottom: 1px solid rgba(226, 229, 222, .9);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 70px;
+    }
+    .nav-brand {
+      flex-shrink: 0;
+      color: var(--accent);
+      font-weight: 800;
+      text-decoration: none;
+      letter-spacing: -.03em;
+    }
+    #site-nav ul {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: clamp(12px, 2.5vw, 30px);
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    #site-nav a:not(.nav-brand) {
+      display: inline-block;
+      padding: 22px 0;
+      color: var(--muted);
+      font-size: .91rem;
+      font-weight: 650;
+      text-decoration: none;
+      transition: color .2s ease;
+    }
+    #site-nav a:hover, #site-nav a:focus-visible { color: var(--accent); }
 
-dl.interests{margin:0}
-dl.interests .row{display:grid;grid-template-columns:230px 1fr;gap:28px;padding:24px 0;border-top:1px solid var(--line)}
-dl.interests .row:last-child{border-bottom:1px solid var(--line)}
-dl.interests dt{font-family:var(--serif);font-weight:700;font-size:19px;line-height:1.5}
-dl.interests dd{margin:0;color:var(--muted)}
+    /* SECTION 03: 주요 본문 공통 */
+    main { padding: 34px 0 90px; }
+    main section {
+      padding: clamp(54px, 8vw, 92px) 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .section-heading { margin-bottom: 32px; }
+    .section-kicker {
+      margin-bottom: 9px;
+      color: var(--accent);
+      font-size: .76rem;
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    h2 {
+      margin-bottom: 0;
+      font-size: clamp(1.9rem, 4vw, 2.8rem);
+      font-weight: 800;
+    }
+    h3 { font-size: 1.18rem; font-weight: 750; }
+    .section-lead { max-width: 720px; color: var(--muted); }
 
-.projects{list-style:none;margin:0;padding:0}
-.projects a.proj{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:26px 28px;background:var(--surface);border-left:4px solid var(--accent);text-decoration:none;color:var(--ink);font-family:var(--serif);font-weight:700;font-size:20px}
-.projects a.proj small{font-family:var(--sans);font-weight:400;font-size:14px;color:var(--accent)}
-.projects a.proj:hover{background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+    /* SECTION A: 자기소개 */
+    .about-layout {
+      display: grid;
+      grid-template-columns: minmax(180px, .72fr) minmax(0, 1.6fr);
+      gap: clamp(28px, 7vw, 92px);
+      align-items: start;
+    }
+    .about-label {
+      padding: 22px 0;
+      border-top: 3px solid var(--accent);
+      color: var(--accent);
+      font-size: 1.05rem;
+      font-weight: 750;
+    }
+    .about-copy { max-width: 720px; }
+    .about-copy p { color: #465148; }
+    .about-copy p:last-child { margin-bottom: 0; }
 
-footer{background:var(--surface);padding:64px 0 72px}
-footer h2{margin-bottom:16px}
-footer p{margin:0;color:var(--muted)}
-footer a.mail{display:inline-block;margin-top:12px;font-size:20px;font-weight:500}
-footer small{display:block;margin-top:48px;color:var(--muted);font-size:14px}
+    /* SECTION B: 관심사 */
+    .interest-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .interest-item {
+      min-height: 190px;
+      padding: clamp(22px, 3vw, 32px);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .interest-item:hover {
+      transform: translateY(-3px);
+      border-color: #c5d4c8;
+      box-shadow: var(--shadow);
+    }
+    .interest-number {
+      display: block;
+      margin-bottom: 22px;
+      color: #8a9c8e;
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+    }
+    .interest-item h3 { margin-bottom: 10px; }
+    .interest-item p { margin-bottom: 0; color: var(--muted); font-size: .95rem; }
 
-@media (max-width:760px){
-  body{font-size:16px}
-  .wrap{padding:0 20px}
-  .nav ul{gap:14px;font-size:14px}
-  .nav .brand{font-size:16px}
-  .hero .wrap{grid-template-columns:1fr;padding-top:56px;padding-bottom:64px}
-  .net{max-width:240px;justify-self:start;order:-1}
-  section{padding:60px 0}
-  .cols,dl.interests .row{grid-template-columns:1fr;gap:10px}
-  .cols>h2{margin-bottom:16px}
-}
-</style>
+    /* SECTION C: 교육 활동 */
+    .activity-panel {
+      display: grid;
+      grid-template-columns: .8fr 1.2fr;
+      gap: clamp(28px, 6vw, 76px);
+      padding: clamp(28px, 5vw, 54px);
+      background: var(--accent);
+      color: #fff;
+      border-radius: var(--radius);
+    }
+    .activity-panel h3 { margin-bottom: 12px; font-size: clamp(1.35rem, 2.8vw, 1.8rem); }
+    .activity-panel p { margin-bottom: 0; color: rgba(255,255,255,.82); }
+    .course-list {
+      display: flex;
+      flex-wrap: wrap;
+      align-content: start;
+      gap: 10px;
+      margin: 0 0 24px;
+      padding: 0;
+      list-style: none;
+    }
+    .course-list li {
+      padding: 8px 13px;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 999px;
+      font-size: .9rem;
+    }
+    .activity-note { font-size: .96rem; }
+
+    /* SECTION D: 프로젝트 */
+    .project-list { display: grid; gap: 16px; }
+    .project-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 24px;
+      padding: 26px 30px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      transition: border-color .2s ease, transform .2s ease;
+    }
+    .project-item:hover { transform: translateY(-2px); border-color: #b9cdbd; }
+    .project-icon {
+      display: grid;
+      width: 54px;
+      aspect-ratio: 1;
+      place-items: center;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: 16px;
+      font-size: 1.35rem;
+    }
+    .project-item h3 { margin-bottom: 5px; }
+    .project-item p { margin-bottom: 0; color: var(--muted); font-size: .94rem; }
+    .project-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent);
+      font-size: .9rem;
+      font-weight: 750;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .project-link span { font-size: 1.2rem; transition: transform .2s ease; }
+    .project-link:hover span { transform: translate(3px, -3px); }
+
+    /* SECTION 04: 푸터 */
+    #site-footer { padding: 34px 0 40px; background: #eeeee8; }
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .footer-name { margin-bottom: 4px; font-weight: 800; }
+    .footer-email { margin: 0; color: var(--muted); font-size: .92rem; }
+    .footer-email a { text-decoration-color: #aab5aa; text-underline-offset: 3px; }
+    .copyright { margin: 0; color: #788078; font-size: .82rem; }
+
+    @media (max-width: 760px) {
+      html { scroll-padding-top: 118px; }
+      .container { width: min(100% - 36px, var(--content)); }
+      #site-header { padding: 76px 0 72px; }
+      .hero-mark { right: -36px; bottom: 20px; opacity: .55; }
+      .nav-inner { display: block; padding-top: 12px; }
+      .nav-brand { display: inline-block; margin-bottom: 4px; }
+      #site-nav ul {
+        justify-content: flex-start;
+        gap: 22px;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      #site-nav ul::-webkit-scrollbar { display: none; }
+      #site-nav a:not(.nav-brand) { padding: 9px 0 13px; white-space: nowrap; font-size: .88rem; }
+      main { padding-top: 10px; }
+      .about-layout { grid-template-columns: 1fr; gap: 18px; }
+      .about-label { padding: 12px 0 0; border-top-width: 2px; }
+      .interest-grid { grid-template-columns: 1fr; }
+      .interest-item { min-height: auto; }
+      .interest-number { margin-bottom: 12px; }
+      .activity-panel { grid-template-columns: 1fr; gap: 24px; }
+      .project-item { grid-template-columns: auto minmax(0, 1fr); gap: 16px; padding: 22px; }
+      .project-link { grid-column: 2; justify-self: start; }
+      .footer-inner { align-items: flex-start; flex-direction: column; gap: 10px; }
+    }
+    @media (max-width: 420px) {
+      body { font-size: 15px; }
+      .container { width: calc(100% - 30px); }
+      #site-header { padding: 64px 0 62px; }
+      .hero-intro { font-size: 1.35rem; }
+      .project-item { padding: 18px; }
+      .project-icon { width: 44px; border-radius: 13px; }
+      .project-item h3 { font-size: 1.05rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+  </style>
 </head>
 <body>
+  <!-- SECTION 01: 사이트 헤더 -->
+  <header id="site-header">
+    <div class="container">
+      <p class="eyebrow">Library &amp; Information Science</p>
+      <h1>김혜진</h1>
+      <p class="hero-intro">정보를 이해하는 힘, AI와 함께 배우는 가능성을 탐구합니다.</p>
+      <p class="hero-description">
+        문헌정보학을 바탕으로 사람과 정보, 기술의 관계를 연구합니다.
+        AI 시대에 필요한 리터러시 교육과 데이터 분석을 통해 교육과 연구의 새로운 가능성을 찾아갑니다.
+      </p>
+    </div>
+    <div class="hero-mark" aria-hidden="true"></div>
+  </header>
 
-<header class="nav">
-  <div class="wrap">
-    <a class="brand" href="#top">김혜진</a>
-    <nav aria-label="주요 메뉴">
+  <!-- SECTION 02: 내비게이션 -->
+  <nav id="site-nav" aria-label="주요 메뉴">
+    <div class="container nav-inner">
+      <a class="nav-brand" href="#site-header">김혜진</a>
       <ul>
         <li><a href="#about">소개</a></li>
-        <li><a href="#interests">관심사</a></li>
-        <li><a href="#teaching">교육</a></li>
+        <li><a href="#interests">주요 관심사</a></li>
+        <li><a href="#activities">교육 활동</a></li>
         <li><a href="#projects">프로젝트</a></li>
-        <li><a href="#contact">연락</a></li>
       </ul>
-    </nav>
-  </div>
-</header>
+    </div>
+  </nav>
 
-<main id="top">
-  <div class="hero">
-    <div class="wrap">
+  <!-- SECTION 03: 주요 본문 -->
+  <main id="main-content">
+    <div class="container">
+      <!-- SECTION A: 자기소개 -->
+      <section id="about" aria-labelledby="about-title">
+        <div class="section-heading">
+          <p class="section-kicker">01 / About</p>
+          <h2 id="about-title">나를 소개합니다</h2>
+        </div>
+        <div class="about-layout">
+          <div class="about-label">정보와 사람, 기술을<br>연결하는 교육과 연구</div>
+          <div class="about-copy">
+            <p>
+              안녕하세요. 국립공주대학교 문헌정보교육과에서 교육과 연구를 하고 있습니다.
+              사람들이 필요한 정보를 찾고, 그 가치를 판단하며, 자신의 지식으로 만들어 가는 과정에 관심이 있습니다.
+            </p>
+            <p>
+              특히 생성형 AI가 정보탐색과 학습에 가져오는 변화를 살펴보고,
+              이용자가 스스로 판단하고 책임 있게 활용할 수 있도록 돕는 교육을 고민합니다.
+            </p>
+            <p>
+              텍스트마이닝과 네트워크 분석을 활용하여 학술연구의 주제 변화와 지식의 흐름을 분석합니다.
+              수업에서는 학생들이 정보와 기술의 원리를 이해하고, 직접 만들고 실험하며 배울 수 있는 경험을 중요하게 생각합니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION B: 주요 관심사 -->
+      <section id="interests" aria-labelledby="interests-title">
+        <div class="section-heading">
+          <p class="section-kicker">02 / Research Interests</p>
+          <h2 id="interests-title">주요 관심사</h2>
+        </div>
+        <div class="interest-grid">
+          <article class="interest-item">
+            <span class="interest-number">AREA 01</span>
+            <h3>AI·정보 리터러시</h3>
+            <p>정보를 비판적으로 평가하고 생성형 AI를 주체적이고 책임 있게 활용하는 데 필요한 역량과 교육 방법을 탐구합니다.</p>
+          </article>
+          <article class="interest-item">
+            <span class="interest-number">AREA 02</span>
+            <h3>정보탐색과 정보행태</h3>
+            <p>사람들이 어떤 상황에서 정보를 필요로 하고, 어떻게 탐색·평가·활용하는지 연구합니다. 생성형 AI 환경에서 달라지는 탐색 방식과 이용자의 판단 과정에 주목합니다.</p>
+          </article>
+          <article class="interest-item">
+            <span class="interest-number">AREA 03</span>
+            <h3>텍스트마이닝과 지식구조 분석</h3>
+            <p>학술문헌과 텍스트 데이터를 분석하여 연구동향, 주제 간 관계, 지식의 발전 경로를 살펴봅니다.</p>
+          </article>
+          <article class="interest-item">
+            <span class="interest-number">AREA 04</span>
+            <h3>인간–AI 협업과 의미구성</h3>
+            <p>AI와의 대화가 학습자의 사고와 창작에 어떤 영향을 미치는지, 그 과정에서 인간의 주체성이 어떻게 발휘되는지 탐구합니다.</p>
+          </article>
+          <article class="interest-item">
+            <span class="interest-number">AREA 05</span>
+            <h3>데이터와 AI를 활용한 교육</h3>
+            <p>데이터베이스, 정보검색, 바이브코딩 실습을 통해 학생들이 아이디어를 구체적인 결과물로 구현하도록 돕는 수업을 설계합니다.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- SECTION C: 주요 교육 활동 -->
+      <section id="activities" aria-labelledby="activities-title">
+        <div class="section-heading">
+          <p class="section-kicker">03 / Teaching</p>
+          <h2 id="activities-title">주요 교육 활동</h2>
+        </div>
+        <div class="activity-panel">
+          <div>
+            <h3>이론을 이해하고,<br>직접 만들며 배우기</h3>
+            <p>정보와 기술의 원리를 이해하는 데서 나아가, 직접 탐구하고 실험하며 배울 수 있는 수업을 지향합니다.</p>
+          </div>
+          <div>
+            <ul class="course-list" aria-label="주요 담당 과목">
+              <li>인공지능 리터러시</li>
+              <li>정보행태론</li>
+              <li>데이터베이스론</li>
+            </ul>
+            <p class="activity-note">
+              생성형 AI의 응답을 검토하고, 데이터를 분석하고, 웹페이지와 앱을 만드는 활동을 통해
+              학생들이 기술을 이해하며 활용할 수 있도록 돕습니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION D: 개별 프로젝트 -->
+      <section id="projects" aria-labelledby="projects-title">
+        <div class="section-heading">
+          <p class="section-kicker">04 / Selected Projects</p>
+          <h2 id="projects-title">개별 프로젝트</h2>
+          <p class="section-lead">아이디어를 직접 구현한 프로젝트와 결과물을 소개합니다.</p>
+        </div>
+        <div class="project-list">
+          <article class="project-item">
+            <div class="project-icon" aria-hidden="true">✓</div>
+            <div>
+              <h3>오늘의 할 일 관리 앱</h3>
+              <p>일상의 할 일을 정리하고 관리하기 위한 웹 앱 프로젝트입니다.</p>
+            </div>
+            <a class="project-link" href="todo-app.html">
+              결과물 보기 <span aria-hidden="true">↗</span>
+            </a>
+          </article>
+          <!-- 새 프로젝트는 project-item article을 복제해 추가하세요. -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- SECTION 04: 사이트 푸터 -->
+  <footer id="site-footer">
+    <div class="container footer-inner">
       <div>
-        <h1>정보를 이해하는 힘,<br>AI와 함께 배우는<br>가능성을 탐구합니다.</h1>
-        <p class="lead">문헌정보학을 바탕으로 사람과 정보, 기술의 관계를 연구합니다. AI 시대에 필요한 리터러시 교육과 데이터 분석을 통해 교육과 연구의 새로운 가능성을 찾아갑니다.</p>
-        <p class="who">김혜진<span>국립공주대학교 문헌정보교육과</span></p>
+        <p class="footer-name">김혜진 · 국립공주대학교 문헌정보교육과</p>
+        <p class="footer-email">
+          <a href="mailto:erin.hj.kim@kongju.ac.kr">erin.hj.kim@kongju.ac.kr</a>
+        </p>
       </div>
-      <svg class="net" viewBox="0 0 320 320" role="img" aria-label="점과 선으로 연결된 지식 네트워크 그림">
-        <g>
-          <line x1="60" y1="80" x2="150" y2="130"/>
-          <line x1="150" y1="130" x2="250" y2="70"/>
-          <line x1="150" y1="130" x2="130" y2="230"/>
-          <line x1="250" y1="70" x2="270" y2="190"/>
-          <line x1="130" y1="230" x2="60" y2="270"/>
-          <line x1="130" y1="230" x2="240" y2="270"/>
-          <line x1="270" y1="190" x2="240" y2="270"/>
-          <line x1="60" y1="80" x2="50" y2="170"/>
-          <line x1="50" y1="170" x2="130" y2="230"/>
-        </g>
-        <g>
-          <line class="hot draw" x1="60" y1="80" x2="150" y2="130"/>
-          <line class="hot draw" x1="150" y1="130" x2="130" y2="230" style="animation-delay:.7s"/>
-          <line class="hot draw" x1="130" y1="230" x2="240" y2="270" style="animation-delay:1.2s"/>
-        </g>
-        <circle cx="60" cy="80" r="9" class="fill"/>
-        <circle cx="150" cy="130" r="16" class="fill"/>
-        <circle cx="250" cy="70" r="10"/>
-        <circle cx="130" cy="230" r="13" class="fill"/>
-        <circle cx="270" cy="190" r="8"/>
-        <circle cx="60" cy="270" r="8"/>
-        <circle cx="240" cy="270" r="10" class="fill"/>
-        <circle cx="50" cy="170" r="8"/>
-      </svg>
+      <p class="copyright">© 김혜진. All rights reserved.</p>
     </div>
-  </div>
-
-  <section id="about">
-    <div class="wrap cols">
-      <h2>나를 소개합니다</h2>
-      <div class="prose">
-        <p>안녕하세요. 국립공주대학교 문헌정보교육과에서 교육과 연구를 하고 있습니다.</p>
-        <p>사람들이 필요한 정보를 찾고, 그 가치를 판단하며, 자신의 지식으로 만들어 가는 과정에 관심이 있습니다. 특히 생성형 AI가 정보탐색과 학습에 가져오는 변화를 살펴보고, 이용자가 스스로 판단하고 책임 있게 활용할 수 있도록 돕는 교육을 고민합니다.</p>
-        <p>텍스트마이닝과 네트워크 분석을 활용하여 학술연구의 주제 변화와 지식의 흐름을 분석합니다. 수업에서는 학생들이 정보와 기술의 원리를 이해하고, 직접 만들고 실험하며 배울 수 있는 경험을 중요하게 생각합니다.</p>
-      </div>
-    </div>
-  </section>
-
-  <section id="interests">
-    <div class="wrap">
-      <h2>주요 관심사</h2>
-      <dl class="interests">
-        <div class="row">
-          <dt>AI·정보 리터러시</dt>
-          <dd>정보를 비판적으로 평가하고 생성형 AI를 주체적이고 책임 있게 활용하는 데 필요한 역량과 교육 방법을 탐구합니다.</dd>
-        </div>
-        <div class="row">
-          <dt>정보탐색과 정보행태</dt>
-          <dd>사람들이 어떤 상황에서 정보를 필요로 하고, 어떻게 탐색·평가·활용하는지 연구합니다. 생성형 AI 환경에서 달라지는 탐색 방식과 이용자의 판단 과정에 주목합니다.</dd>
-        </div>
-        <div class="row">
-          <dt>텍스트마이닝과 지식구조 분석</dt>
-          <dd>학술문헌과 텍스트 데이터를 분석하여 연구동향, 주제 간 관계, 지식의 발전 경로를 살펴봅니다.</dd>
-        </div>
-        <div class="row">
-          <dt>인간–AI 협업과 의미구성</dt>
-          <dd>AI와의 대화가 학습자의 사고와 창작에 어떤 영향을 미치는지, 그 과정에서 인간의 주체성이 어떻게 발휘되는지 탐구합니다.</dd>
-        </div>
-        <div class="row">
-          <dt>데이터와 AI를 활용한 교육</dt>
-          <dd>데이터베이스, 정보검색, 바이브코딩 실습을 통해 학생들이 아이디어를 구체적인 결과물로 구현하도록 돕는 수업을 설계합니다.</dd>
-        </div>
-      </dl>
-    </div>
-  </section>
-
-  <section id="teaching">
-    <div class="wrap cols">
-      <h2>주요 교육 활동</h2>
-      <div class="prose">
-        <p>인공지능 리터러시, 정보행태론, 데이터베이스론 등을 가르치며 이론과 실습을 연결하는 수업을 운영합니다. 생성형 AI의 응답을 검토하고, 데이터를 분석하고, 웹페이지와 앱을 만드는 활동을 통해 학생들이 기술을 이해하며 활용할 수 있도록 돕습니다.</p>
-      </div>
-    </div>
-  </section>
-
-  <section id="projects">
-    <div class="wrap">
-      <h2>개별 프로젝트 소개</h2>
-      <ul class="projects">
-        <li><a class="proj" href="todo-app.html">오늘의 할 일 관리 앱 <small>열어보기</small></a></li>
-      </ul>
-    </div>
-  </section>
-</main>
-
-<footer id="contact">
-  <div class="wrap">
-    <h2>연락처</h2>
-    <p>연구와 수업에 대한 문의는 이메일로 보내 주세요.</p>
-    <a class="mail" href="mailto:erin.hj.kim@kongju.ac.kr">erin.hj.kim@kongju.ac.kr</a>
-    <small>© 김혜진 · 국립공주대학교 문헌정보교육과</small>
-  </div>
-</footer>
-
+  </footer>
 </body>
 </html>
