@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="감정 버튼을 누르면 그 마음에 맞는 명언을 보여주는 웹 앱">
+<meta name="theme-color" content="#F6F7F9">
+<title>마음 한 문장</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+html{-webkit-text-size-adjust:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+img{max-width:100%}
+button,.tab,.emo{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+
+/* Layout: 한 장짜리 필사 노트 — 감정 버튼 → 큰 문장 카드 → 접히는 목록 관리 */
+:root{
+  --bg:#F6F7F9; --surface:#FFFFFF; --ink:#1F2430; --muted:#5E6575; --line:#DDE1E8;
+  --joy:#C98A0B; --joy-soft:#FFF5DC;
+  --sad:#3B6FB6; --sad-soft:#E8F0FB;
+  --tired:#3F8A63; --tired-soft:#E5F3EA;
+  --anx:#7A5CC2; --anx-soft:#EFEAFB;
+  --danger:#C23B3B;
+  --accent:var(--joy); --accent-soft:var(--joy-soft);
+  --f-quote:"Gowun Batang","Nanum Myeongjo","Batang",serif;
+  --f-ui:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#15181F; --surface:#1E222B; --ink:#ECEEF3; --muted:#A3A9B6; --line:#323845;
+  --joy:#F0BC4C; --joy-soft:#2F2815; --sad:#82AEEB; --sad-soft:#1A2638;
+  --tired:#7CC79D; --tired-soft:#17291F; --anx:#B49CF0; --anx-soft:#251E37; --danger:#F07C7C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#15181F; --surface:#1E222B; --ink:#ECEEF3; --muted:#A3A9B6; --line:#323845;
+  --joy:#F0BC4C; --joy-soft:#2F2815; --sad:#82AEEB; --sad-soft:#1A2638;
+  --tired:#7CC79D; --tired-soft:#17291F; --anx:#B49CF0; --anx-soft:#251E37; --danger:#F07C7C; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 56px}
+body[data-emo="joy"]{--accent:var(--joy);--accent-soft:var(--joy-soft)}
+body[data-emo="sad"]{--accent:var(--sad);--accent-soft:var(--sad-soft)}
+body[data-emo="tired"]{--accent:var(--tired);--accent-soft:var(--tired-soft)}
+body[data-emo="anx"]{--accent:var(--anx);--accent-soft:var(--anx-soft)}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+header{display:flex;flex-direction:column;gap:4px}
+h1{font-family:var(--f-quote);font-weight:700;font-size:clamp(28px,5vw,36px);margin:0;letter-spacing:-.01em}
+.sub{margin:0;color:var(--muted);font-size:17px}
+h2{font-size:15px;font-weight:600;letter-spacing:.06em;color:var(--muted);margin:0}
+button{font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.emos{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:620px){.emos{grid-template-columns:repeat(2,1fr)}}
+.emo{--c:var(--joy);--cs:var(--joy-soft);border:2px solid var(--line);background:var(--surface);color:var(--ink);
+  border-radius:14px;padding:16px 12px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;
+  transition:border-color .15s,background .15s,transform .15s}
+.emo[data-k="sad"]{--c:var(--sad);--cs:var(--sad-soft)}
+.emo[data-k="tired"]{--c:var(--tired);--cs:var(--tired-soft)}
+.emo[data-k="anx"]{--c:var(--anx);--cs:var(--anx-soft)}
+.emo .dot{width:14px;height:14px;border-radius:50%;background:var(--c)}
+.emo b{font-size:18px;font-weight:600}
+.emo small{color:var(--muted);font-size:14px}
+.emo:hover{border-color:var(--c);transform:translateY(-2px)}
+.emo[aria-pressed="true"]{border-color:var(--c);background:var(--cs)}
+
+.card{background:var(--accent-soft);border-radius:20px;padding:clamp(28px,6vw,52px);display:flex;flex-direction:column;gap:22px;
+  border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);transition:background .3s}
+.tag{align-self:flex-start;font-size:14px;font-weight:600;color:var(--accent);letter-spacing:.04em}
+.mark{font-family:var(--f-quote);font-size:72px;line-height:.5;color:var(--accent);height:28px;margin:0}
+blockquote{margin:0;font-family:var(--f-quote);font-size:clamp(22px,3.6vw,30px);line-height:1.65;text-wrap:balance;word-break:keep-all}
+.who{font-size:17px;color:var(--muted);margin:0}
+.who::before{content:"— "}
+.row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.count{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.btn{border:none;background:var(--accent);color:var(--surface);font-weight:600;font-size:16px;padding:12px 22px;border-radius:999px}
+.btn:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.fade{animation:fade .45s ease}
+@keyframes fade{from{opacity:.25;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}.emo{transition:none}}
+
+details.manage{background:var(--surface);border:1px solid var(--line);border-radius:16px}
+details.manage>summary{list-style:none;cursor:pointer;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:17px}
+details.manage>summary::-webkit-details-marker{display:none}
+details.manage>summary::after{content:"열기";font-weight:500;font-size:14px;color:var(--muted)}
+details.manage[open]>summary::after{content:"닫기"}
+.mbody{padding:0 22px 22px;display:flex;flex-direction:column;gap:18px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tab{border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:8px 14px;border-radius:999px;font-size:15px}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface);font-weight:600}
+form{display:grid;grid-template-columns:1fr 180px auto;gap:8px;align-items:end}
+@media (max-width:620px){form{grid-template-columns:1fr}}
+label{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--muted);min-width:0}
+input,textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+textarea{resize:vertical;min-height:46px}
+.msg{font-size:14px;margin:0;min-height:1.4em;color:var(--muted)}
+.msg.warn{color:var(--danger)}
+ol.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border-top:1px solid var(--line);max-height:440px;overflow-y:auto}
+ol.list li{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px 2px;border-bottom:1px solid var(--line)}
+ol.list .q{font-family:var(--f-quote);font-size:16px;min-width:0;word-break:keep-all}
+ol.list .q span{display:block;font-family:var(--f-ui);font-size:13px;color:var(--muted)}
+.del{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;padding:6px 12px;font-size:14px;white-space:nowrap}
+.del:hover,.del.confirm{border-color:var(--danger);color:var(--danger)}
+.del.confirm{font-weight:600}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;font-size:14px;color:var(--muted)}
+.ghost{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;padding:6px 12px;font-size:14px}
+.ghost.confirm{border-color:var(--danger);color:var(--danger);font-weight:600}
+.empty{color:var(--muted);padding:16px 2px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>마음 한 문장</h1>
+    <p class="sub">지금의 마음을 고르면, 그 마음에 맞는 한 문장이 도착</p>
+  </header>
+
+  <section aria-labelledby="pick">
+    <h2 id="pick" style="margin-bottom:10px">지금 마음은 어떤가요?</h2>
+    <div class="emos" id="emos"></div>
+  </section>
+
+  <section class="card" id="card" aria-live="polite">
+    <span class="tag" id="tag"></span>
+    <p class="mark" aria-hidden="true">“</p>
+    <div id="qbox">
+      <blockquote id="quote"></blockquote>
+      <p class="who" id="who"></p>
+    </div>
+    <div class="row">
+      <span class="count" id="count"></span>
+      <button class="btn" id="next" type="button">다른 명언 보기</button>
+    </div>
+  </section>
+
+  <details class="manage" id="manage">
+    <summary>명언 목록 관리</summary>
+    <div class="mbody">
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <form id="addForm" autocomplete="off">
+        <label for="newQ">명언<textarea id="newQ" rows="1" required placeholder="추가할 문장 입력"></textarea></label>
+        <label for="newW">발언자<input id="newW" required placeholder="예: 세네카"></label>
+        <button class="btn" type="submit">추가</button>
+      </form>
+      <p class="msg" id="msg"></p>
+      <ol class="list" id="list"></ol>
+      <div class="foot">
+        <span id="listCount"></span>
+        <button class="ghost" id="reset" type="button">이 감정의 기본 목록으로 되돌리기</button>
+      </div>
+    </div>
+  </details>
+</div>
+
+<script>
+const EMOS = {
+  joy:{name:"기쁘고 행복함", hint:"이 기쁨을 더 오래", tag:"기쁨을 오래 간직하는 문장"},
+  sad:{name:"슬프고 우울함", hint:"조용한 위로가 필요", tag:"마음을 다독이는 문장"},
+  tired:{name:"지치고 번아웃", hint:"잠시 쉬어갈 시간", tag:"숨 고르기를 위한 문장"},
+  anx:{name:"불안하고 스트레스", hint:"마음을 가라앉히기", tag:"마음을 가라앉히는 문장"}
+};
+const DEFAULTS = {
+ joy:[
+  ["행복은 이미 만들어진 것이 아니다. 그것은 당신의 행동에서 나온다.","달라이 라마"],
+  ["행복은 습관이다. 그것을 몸에 지니라.","엘버트 허버드"],
+  ["기쁨을 나누면 두 배가 되고, 슬픔을 나누면 반이 된다.","스웨덴 속담"],
+  ["모든 날 가운데 가장 헛되이 보낸 날은 웃지 않은 날이다.","니콜라 샹포르"],
+  ["행복한 삶을 사는 데 필요한 것은 아주 적다. 모두 당신 안에, 당신의 생각하는 방식에 있다.","마르쿠스 아우렐리우스"],
+  ["감사하는 마음은 가장 위대한 미덕일 뿐 아니라 모든 미덕의 어버이다.","키케로"],
+  ["행복은 향수와 같아서 남에게 뿌리면 자기에게도 몇 방울 묻는다.","랠프 월도 에머슨"],
+  ["오늘을 붙잡아라. 내일은 최대한 적게 믿어라.","호라티우스"],
+  ["행복은 목적지가 아니라 여행하는 방식이다.","마거릿 리 런벡"],
+  ["하나의 촛불로 수천 개의 촛불을 밝혀도 그 촛불의 수명은 줄지 않는다. 행복도 나눈다고 줄지 않는다.","붓다(전승)"],
+  ["즐거운 마음은 좋은 약이다.","잠언 17장 22절"],
+  ["행복은 스스로에게 만족하는 사람의 것이다.","아리스토텔레스"],
+  ["행복의 비결은 자유이고, 자유의 비결은 용기다.","투키디데스"],
+  ["행복하고 싶다면, 행복하라.","레프 톨스토이"],
+  ["감사는 과거를 이해하게 하고, 오늘에 평화를 주며, 내일을 위한 비전을 만든다.","멜로디 비티"],
+  ["웃음은 두 사람 사이의 가장 가까운 거리다.","빅터 보르게"],
+  ["행복은 나비와 같아서 쫓으면 달아나지만, 조용히 앉아 있으면 어깨에 내려앉는다.","너새니얼 호손(전승)"],
+  ["세상에서 가장 아름답고 소중한 것은 보이거나 만져지지 않는다. 오직 마음으로 느껴야 한다.","헬렌 켈러"],
+  ["아직 곁에 남아 있는 모든 아름다움을 생각하며 행복하라.","안네 프랑크"],
+  ["네가 오후 네 시에 온다면 나는 세 시부터 행복해지기 시작할 거야.","생텍쥐페리, 『어린 왕자』"],
+  ["아는 것은 좋아하는 것만 못하고, 좋아하는 것은 즐기는 것만 못하다.","공자"]
+ ],
+ sad:[
+  ["이 또한 지나가리라.","유대 전승"],
+  ["아무리 어두운 밤도 끝나고, 해는 다시 떠오른다.","빅토르 위고"],
+  ["상처는 빛이 당신에게 들어오는 자리다.","잘랄루딘 루미"],
+  ["눈물에는 신성함이 있다. 그것은 약함이 아니라 힘의 표시다.","워싱턴 어빙"],
+  ["세상은 고통으로 가득하지만, 그것을 이겨내는 일로도 가득하다.","헬렌 켈러"],
+  ["삶이 있는 한 희망은 있다.","키케로"],
+  ["슬픔이 당신을 깊이 파낼수록, 당신은 더 많은 기쁨을 담을 수 있다.","칼릴 지브란"],
+  ["겨울 한가운데서, 나는 마침내 내 안에 꺾이지 않는 여름이 있음을 알았다.","알베르 카뮈"],
+  ["희망은 영혼에 내려앉은 날개 달린 것.","에밀리 디킨슨"],
+  ["우리의 가장 큰 영광은 한 번도 넘어지지 않는 것이 아니라, 넘어질 때마다 일어서는 데 있다.","올리버 골드스미스"],
+  ["슬픔을 말로 꺼내라. 말하지 못한 슬픔은 무거운 가슴에 속삭여 그것을 부수고 만다.","셰익스피어, 『맥베스』"],
+  ["오직 어둠 속에서만 별을 볼 수 있다.","마틴 루서 킹"],
+  ["하루를 마쳤으면 그것으로 되었다. 할 수 있는 만큼 했다. 내일은 새로운 날이다.","랠프 월도 에머슨"],
+  ["나를 죽이지 못하는 것은 나를 더 강하게 만든다.","프리드리히 니체"],
+  ["때로는 살아 있는 것 자체가 용기 있는 일이다.","세네카"],
+  ["슬픔에는 연금술이 있다. 그것은 지혜로 바뀔 수 있다.","펄 벅"],
+  ["인생에 대해 배운 모든 것을 세 마디로 말할 수 있다. 삶은 계속된다.","로버트 프로스트"],
+  ["모든 것이 괜찮아질 것이다. 모든 것이, 모든 방식으로 괜찮아질 것이다.","노리치의 줄리안"],
+  ["별을 바라보면 언제나 꿈을 꾸게 된다.","빈센트 반 고흐"],
+  ["저녁에는 울음이 머물지라도, 아침에는 기쁨이 온다.","시편 30편 5절"],
+  ["슬퍼하지 마라. 잃은 것은 다른 모습으로 돌아온다.","잘랄루딘 루미"]
+ ],
+ tired:[
+  ["휴식은 게으름이 아니다. 여름날 나무 아래 누워 물소리를 듣고 구름을 바라보는 것은 결코 시간 낭비가 아니다.","존 러벅"],
+  ["천천히 가는 것을 두려워하지 말고, 멈추는 것을 두려워하라.","중국 속담"],
+  ["자연은 서두르지 않지만 모든 것을 이룬다.","노자"],
+  ["인생은 자전거 타기와 같다. 균형을 잡으려면 계속 움직여야 한다.","알베르트 아인슈타인"],
+  ["거의 모든 것은 몇 분 동안 플러그를 뽑았다 다시 꽂으면 다시 작동한다. 당신도 마찬가지다.","앤 라모트"],
+  ["천 리 길도 한 걸음부터.","노자"],
+  ["지옥을 지나고 있다면, 계속 걸어가라.","윈스턴 처칠(전승)"],
+  ["인내는 쓰지만, 그 열매는 달다.","장 자크 루소"],
+  ["마음에도 휴식을 주어야 한다. 쉬고 난 마음은 더 낫고 더 예리해진다.","세네카"],
+  ["멈추지만 않는다면, 얼마나 천천히 가는지는 중요하지 않다.","공자"],
+  ["자연의 속도를 따르라. 그 비결은 인내다.","랠프 월도 에머슨"],
+  ["성공은 매일 반복되는 작은 노력들의 합이다.","로버트 콜리어"],
+  ["가끔은 일에서 떠나 쉬어라. 돌아왔을 때 판단이 더 확실해질 것이다.","레오나르도 다빈치"],
+  ["천천히, 그러나 꾸준히 가는 자가 경주에서 이긴다.","이솝 우화"],
+  ["성공하는 가장 확실한 방법은 언제나 한 번 더 시도하는 것이다.","토머스 에디슨"],
+  ["왜 살아야 하는지 아는 사람은 거의 어떤 상황도 견딜 수 있다.","프리드리히 니체"],
+  ["인내와 시간은 힘이나 분노보다 더 많은 일을 해낸다.","장 드 라 퐁텐"],
+  ["일곱 번 넘어져도 여덟 번 일어난다.","일본 속담"],
+  ["인간의 모든 불행은 방 안에 조용히 혼자 머물지 못하는 데서 비롯된다.","블레즈 파스칼"],
+  ["단순하게, 단순하게 살라.","헨리 데이비드 소로"],
+  ["어제는 지나갔고 내일은 아직 오지 않았다. 우리에게는 오늘만 있다. 시작하자.","마더 테레사"]
+ ],
+ anx:[
+  ["걱정은 내일의 슬픔을 덜어주지 않는다. 오늘의 힘을 빼앗을 뿐이다.","코리 텐 붐"],
+  ["우리는 현실보다 상상 속에서 더 자주 고통받는다.","세네카"],
+  ["오늘 나는 불안에서 벗어났다. 아니, 불안을 버렸다. 그것은 바깥이 아니라 내 생각 속에 있었으니까.","마르쿠스 아우렐리우스"],
+  ["스트레스에 맞서는 가장 큰 무기는 하나의 생각 대신 다른 생각을 고르는 능력이다.","윌리엄 제임스"],
+  ["우리가 두려워해야 할 유일한 것은 두려움 그 자체다.","프랭클린 D. 루스벨트"],
+  ["용기란 두려움이 없는 것이 아니라 두려움을 이겨내는 것이다.","넬슨 만델라"],
+  ["할 수 있다고 믿든 할 수 없다고 믿든, 당신이 옳다.","헨리 포드"],
+  ["당신의 동의 없이는 누구도 당신이 열등하다고 느끼게 할 수 없다.","엘리너 루스벨트"],
+  ["내 인생은 끔찍한 불행으로 가득했지만, 그 대부분은 실제로 일어나지 않았다.","미셸 드 몽테뉴"],
+  ["우리를 불안하게 하는 것은 일 자체가 아니라, 그 일에 대한 우리의 생각이다.","에픽테토스"],
+  ["바꿀 수 없는 것을 받아들이는 평온과, 바꿀 수 있는 것을 바꾸는 용기와, 그 둘을 구별하는 지혜를 주소서.","라인홀드 니버"],
+  ["감정은 바람 부는 하늘의 구름처럼 오고 간다. 의식적인 호흡이 나의 닻이다.","틱낫한"],
+  ["해결할 수 있는 문제라면 걱정할 필요가 없고, 해결할 수 없는 문제라면 걱정해도 소용없다.","샨티데바"],
+  ["인생에서 두려워할 것은 없다. 이해해야 할 것만 있을 뿐이다.","마리 퀴리"],
+  ["두려워하는 일을 하라. 그러면 두려움은 반드시 사라진다.","랠프 월도 에머슨"],
+  ["인생은 과감한 모험이거나, 아무것도 아니다.","헬렌 켈러"],
+  ["불안은 자유의 현기증이다.","쇠렌 키르케고르"],
+  ["마음은 그 자체로 하나의 세계여서, 지옥을 천국으로도 천국을 지옥으로도 만들 수 있다.","존 밀턴, 『실낙원』"],
+  ["나는 폭풍이 두렵지 않다. 배를 모는 법을 배우고 있으니까.","루이자 메이 올컷"],
+  ["완벽함은 좋은 것의 적이다.","볼테르"],
+  ["스스로를 믿는 순간, 어떻게 살아야 할지 알게 될 것이다.","요한 볼프강 폰 괴테"]
+ ]
+};
+const KEY = "maeum-quotes-v1";
+const toObj = arr => arr.map(([q,w],i)=>({id:"d"+i+"_"+w.length,q,w}));
+function freshDefaults(k){return toObj(DEFAULTS[k])}
+let data = {};
+try{ const s = JSON.parse(localStorage.getItem(KEY)||"null"); if(s && typeof s==="object") data = s; }catch(e){}
+for(const k in EMOS){ if(!Array.isArray(data[k])) data[k] = freshDefaults(k); }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(data)); }catch(e){} }
+
+const $ = id => document.getElementById(id);
+let current = null, lastId = null, manageKey = "joy";
+
+// 감정 버튼
+$("emos").innerHTML = Object.entries(EMOS).map(([k,v]) =>
+  `<button class="emo" type="button" data-k="${k}" aria-pressed="false"><span class="dot" aria-hidden="true"></span><b>${v.name}</b><small>${v.hint}</small></button>`).join("");
+$("emos").addEventListener("click", e=>{ const b=e.target.closest(".emo"); if(b) pick(b.dataset.k); });
+
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+function pick(k){
+  current = k; lastId = null;
+  document.body.dataset.emo = k;
+  document.querySelectorAll(".emo").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.k===k)));
+  manageKey = k; renderManage();
+  show();
+}
+function show(){
+  const list = data[current];
+  $("tag").textContent = EMOS[current].tag;
+  if(!list.length){
+    $("quote").textContent = "이 감정에 등록된 명언 없음. 아래 목록 관리에서 추가 필요.";
+    $("who").textContent = ""; $("who").hidden = true;
+    $("count").textContent = "등록된 명언 0개"; $("next").disabled = true; return;
+  }
+  $("who").hidden = false; $("next").disabled = list.length < 2;
+  let pool = list.filter(x=>x.id!==lastId); if(!pool.length) pool = list;
+  const item = pool[Math.floor(Math.random()*pool.length)];
+  lastId = item.id;
+  $("quote").textContent = item.q;
+  $("who").textContent = item.w;
+  $("count").textContent = `${EMOS[current].name} · ${list.length}개 중 무작위 1개`;
+  const box=$("qbox"); box.classList.remove("fade"); void box.offsetWidth; box.classList.add("fade");
+}
+$("next").addEventListener("click", show);
+
+// 목록 관리
+function renderTabs(){
+  $("tabs").innerHTML = Object.entries(EMOS).map(([k,v])=>
+    `<button class="tab" role="tab" type="button" data-k="${k}" aria-selected="${k===manageKey}">${v.name} (${data[k].length})</button>`).join("");
+}
+$("tabs").addEventListener("click", e=>{ const t=e.target.closest(".tab"); if(t){ manageKey=t.dataset.k; renderManage(); setMsg(""); }});
+function renderManage(){
+  renderTabs();
+  const list = data[manageKey];
+  $("list").innerHTML = list.length ? list.map(x=>
+    `<li><p class="q" style="margin:0">${esc(x.q)}<span>${esc(x.w)}</span></p><button class="del" type="button" data-id="${x.id}">삭제</button></li>`).join("")
+    : `<li class="empty">등록된 명언 없음. 위 입력란에서 추가 가능.</li>`;
+  const n = list.length;
+  $("listCount").textContent = n >= 20 ? `총 ${n}개 등록` : `총 ${n}개 등록 · 권장 개수(20개)보다 ${20-n}개 부족`;
+  $("listCount").style.color = n >= 20 ? "" : "var(--danger)";
+  resetBtnState(false);
+}
+function setMsg(t,warn){ $("msg").textContent=t; $("msg").className = "msg"+(warn?" warn":""); }
+
+$("list").addEventListener("click", e=>{
+  const b = e.target.closest(".del"); if(!b) return;
+  if(!b.classList.contains("confirm")){
+    document.querySelectorAll(".del.confirm").forEach(x=>{x.classList.remove("confirm");x.textContent="삭제";});
+    b.classList.add("confirm"); b.textContent="한 번 더 눌러 삭제"; return;
+  }
+  data[manageKey] = data[manageKey].filter(x=>x.id!==b.dataset.id);
+  save(); renderManage(); setMsg("명언 1개 삭제 완료");
+  if(current===manageKey) show();
+});
+
+$("addForm").addEventListener("submit", e=>{
+  e.preventDefault();
+  const q=$("newQ").value.trim(), w=$("newW").value.trim();
+  if(!q||!w){ setMsg("명언과 발언자를 모두 입력해야 추가 가능",true); return; }
+  if(data[manageKey].some(x=>x.q===q)){ setMsg("이미 같은 문장이 목록에 있음",true); return; }
+  data[manageKey].unshift({id:"u"+Date.now(),q,w});
+  save(); $("newQ").value=""; $("newW").value="";
+  renderManage(); setMsg(`'${EMOS[manageKey].name}'에 명언 추가 완료`);
+});
+
+let resetArmed=false;
+function resetBtnState(on){ resetArmed=on; const r=$("reset"); r.classList.toggle("confirm",on);
+  r.textContent = on ? "한 번 더 누르면 기본 목록으로 되돌림" : "이 감정의 기본 목록으로 되돌리기"; }
+$("reset").addEventListener("click", ()=>{
+  if(!resetArmed){ resetBtnState(true); return; }
+  data[manageKey]=freshDefaults(manageKey); save(); renderManage();
+  setMsg(`'${EMOS[manageKey].name}' 기본 목록 ${data[manageKey].length}개로 복원 완료`);
+  if(current===manageKey) show();
+});
+
+// 첫 화면: 무작위 감정 하나를 골라 예시 문장 표시
+pick(Object.keys(EMOS)[Math.floor(Math.random()*4)]);
+</script>
+
+</body>
+</html>
