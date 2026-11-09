@@ -153,19 +153,37 @@
     .project-list {
       display: grid;
       grid-template-columns: 1fr;  /* 프로젝트 한 줄에 하나씩 */
-      gap: 24px;
+      gap: 10px;                   /* 프로젝트 간 간격 (좁게) */
+      counter-reset: project;      /* 프로젝트 번호 시작 */
     }
 
     .project-card {
       background: var(--color-surface);
       border: 1px solid var(--color-line);
-      border-radius: 10px;
-      padding: 28px;
-      display: flex;
-      flex-direction: column;
+      border-radius: 8px;
+      padding: 14px 20px;          /* 카드 안쪽 여백 축소 */
+      color: var(--color-muted);   /* 설명 글자색 */
+      counter-increment: project;  /* 카드마다 번호 1씩 증가 */
     }
 
-    .project-card p { color: var(--color-muted); margin: 0; }
+    /* 프로젝트 번호 자동 표시 (1. 2. 3. …) */
+    .project-card h3::before {
+      content: counter(project) ". ";
+      color: var(--color-accent);
+    }
+
+    /* 프로젝트명과 설명을 한 줄로 이어서 표시 */
+    .project-card h3 {
+      display: inline;
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .project-card h3::after {
+      content: " — ";
+      font-weight: 400;
+      color: var(--color-muted);
+    }
 
     /* 프로젝트명 = 새 탭 링크 */
     .project-card h3 a {
