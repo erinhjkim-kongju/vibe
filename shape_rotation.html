@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>도형 돌리고 뒤집기 교구</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eaf5f1;--card:#fff;--ink:#1b2a49;--muted:#566a7d;--grid:#d3e7df;--axis:#86b0a4;--teal:#0f7f74;--rose:#c9446a;--sun:#ffd25e;--sky:#8fd0f7;--ok:#1f9d55;--line:#c3dcd3;--on:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1a24;--card:#162736;--ink:#e9f2f6;--muted:#9bb2c1;--grid:#223646;--axis:#55768b;--line:#2c4457;--ok:#4cd98a;--teal:#1aa595;--rose:#e0618a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1a24;--card:#162736;--ink:#e9f2f6;--muted:#9bb2c1;--grid:#223646;--axis:#55768b;--line:#2c4457;--ok:#4cd98a;--teal:#1aa595;--rose:#e0618a;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Jua','Apple SD Gothic Neo','Malgun Gothic',sans-serif;line-height:1.5}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.wrap{max-width:900px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:2rem;margin:0;font-weight:400;letter-spacing:-.01em}
+.sub{margin:2px 0 16px;color:var(--muted)}
+.tabs{display:inline-flex;background:var(--card);border:2px solid var(--ink);border-radius:999px;padding:3px;margin-bottom:14px}
+.tab{border:0;background:none;padding:8px 22px;border-radius:999px}
+.tab[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{display:flex;flex-direction:column;align-items:center;gap:2px;width:84px;padding:6px 4px;background:var(--card);border:2px solid var(--line);border-radius:14px;font-size:.85rem}
+.chip svg{width:44px;height:44px}
+.chip[aria-pressed=true]{border-color:var(--ink);box-shadow:0 3px 0 var(--ink)}
+.stages{display:grid;gap:12px;grid-template-columns:1fr;max-width:440px;margin:0 auto}
+.stages.q{grid-template-columns:1fr 1fr;max-width:none}
+figure{margin:0}
+figcaption{text-align:center;margin-top:6px;color:var(--muted);font-size:.95rem}
+.board{display:block;width:100%;aspect-ratio:1;border:3px solid var(--ink);border-radius:18px;background-color:var(--card);
+background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:10% 10%}
+.board.ok{border-color:var(--ok);box-shadow:0 0 0 4px var(--ok)}
+.ax{stroke:var(--axis);stroke-width:1.5;stroke-dasharray:5 5}
+.gh{fill:none;stroke:var(--axis);stroke-width:3;stroke-dasharray:6 6}
+.sh{fill:var(--sun);stroke:#1b2a49;stroke-width:4;stroke-linejoin:round}
+.sh.t{fill:var(--sky)}
+.vd{fill:#ee6c8b;stroke:#1b2a49;stroke-width:3}
+.ff{fill:#1b2a49;font-family:Arial,sans-serif;font-weight:800;text-anchor:middle;dominant-baseline:central}
+.read{text-align:center;margin:14px 0 4px;font-size:1.1rem;min-height:1.7em}
+.hist{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;min-height:30px;margin-bottom:10px}
+.hist span{background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:1px 10px;font-size:.85rem;color:var(--muted)}
+.ctrl{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:8px 0}
+.op{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-height:76px;border:0;border-radius:16px;color:var(--on);box-shadow:0 4px 0 rgba(0,0,0,.28);transition:transform .08s}
+.op:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.28)}
+.op b{font-size:1.9rem;font-weight:400;line-height:1.1}
+.op.r{background:var(--teal)}
+.op.f{background:var(--rose)}
+.op:disabled{opacity:.5}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;margin-top:10px}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}
+.seg button{border:0;background:none;padding:6px 14px}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.btn{border:2px solid var(--ink);background:var(--card);border-radius:12px;padding:8px 18px}
+.btn.main{background:var(--ink);color:var(--bg)}
+.msg{text-align:center;min-height:1.7em;margin-top:10px;font-size:1.1rem}
+.msg.good{color:var(--ok)}
+.score{color:var(--muted);font-size:.95rem}
+.hide{display:none!important}
+@media (max-width:520px){.ctrl{grid-template-columns:1fr 1fr}h1{font-size:1.6rem}}
+@media (prefers-reduced-motion:reduce){.op{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>도형 돌리고 뒤집기</h1>
+  <p class="sub">돌리고 뒤집으면 도형이 어떻게 달라질까요? 직접 눌러 보며 알아봐요.</p>
+
+  <div class="tabs" role="group" aria-label="모드">
+    <button class="tab" data-m="p" aria-pressed="true">연습하기</button>
+    <button class="tab" data-m="q" aria-pressed="false">퀴즈 풀기</button>
+  </div>
+
+  <div class="chips" id="shapes" role="group" aria-label="도형 고르기"></div>
+
+  <div class="stages" id="stages">
+    <figure id="figT" class="hide"><svg class="board" id="bT" viewBox="-150 -150 300 300" role="img" aria-label="목표 도형"></svg><figcaption>목표 도형</figcaption></figure>
+    <figure><svg class="board" id="bM" viewBox="-150 -150 300 300" role="img" aria-label="내 도형"></svg><figcaption id="capM">내 도형 (점선은 처음 위치)</figcaption></figure>
+  </div>
+
+  <div class="read" id="read" aria-live="polite"></div>
+  <div class="hist" id="hist"></div>
+
+  <div class="ctrl">
+    <button class="op r" data-op="ccw"><b>↺</b><span id="lccw">반시계 90°</span></button>
+    <button class="op r" data-op="cw"><b>↻</b><span id="lcw">시계 90°</span></button>
+    <button class="op f" data-op="h"><b>⇆</b><span>좌우 뒤집기</span></button>
+    <button class="op f" data-op="v"><b>⇅</b><span>상하 뒤집기</span></button>
+  </div>
+
+  <div class="row" id="rowP">
+    <div class="seg" role="group" aria-label="한 번에 돌리는 각도">
+      <button data-s="45" aria-pressed="false">45°씩</button>
+      <button data-s="90" aria-pressed="true">90°씩</button>
+    </div>
+    <button class="btn" id="reset">처음으로</button>
+  </div>
+
+  <div class="hide" id="rowQ">
+    <div class="row">
+      <div class="seg" role="group" aria-label="난이도">
+        <button data-l="1" aria-pressed="true">쉬움: 돌리기만</button>
+        <button data-l="2" aria-pressed="false">보통: 뒤집기도</button>
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn main" id="check">정답 확인</button>
+      <button class="btn" id="newq">새 문제</button>
+      <button class="btn" id="reset2">처음으로</button>
+    </div>
+    <div class="row score" id="score"></div>
+  </div>
+  <div class="msg" id="msg" aria-live="polite"></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const poly=(n,r)=>Array.from({length:n},(_,k)=>{const a=(-90+k*360/n)*Math.PI/180;return[+(r*Math.cos(a)).toFixed(1),+(r*Math.sin(a)).toFixed(1)]});
+const SH=[
+ {n:'정삼각형',p:poly(3,92),f:[0,14],z:32},
+ {n:'직각삼각형',p:[[-40,-80],[-40,40],[80,40]],f:[-12,12],z:32},
+ {n:'정사각형',p:[[-65,-65],[65,-65],[65,65],[-65,65]],f:[0,0],z:50},
+ {n:'정오각형',p:poly(5,88),f:[0,4],z:44},
+ {n:'L자 도형',p:[[-50,-70],[-10,-70],[-10,30],[50,30],[50,70],[-50,70]],f:[-30,-25],z:30}
+];
+const I=[1,0,0,1],FH=[-1,0,0,1],FV=[1,0,0,-1];
+const rd=x=>Math.round(x*1e6)/1e6;
+const mul=(A,B)=>[A[0]*B[0]+A[2]*B[1],A[1]*B[0]+A[3]*B[1],A[0]*B[2]+A[2]*B[3],A[1]*B[2]+A[3]*B[3]].map(rd);
+const rotM=d=>{const r=d*Math.PI/180;return[rd(Math.cos(r)),rd(Math.sin(r)),rd(-Math.sin(r)),rd(Math.cos(r))]};
+const det=M=>M[0]*M[3]-M[1]*M[2];
+const same=(A,B)=>A.every((v,i)=>Math.abs(v-B[i])<.01);
+const tf=(M,a='')=>`${a} matrix(${M.join(' ')} 0 0)`;
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let mode='p',cur=0,M=I,step=90,hist=[],busy=false;
+let Q={T:I,lv:1,ok:0,tries:0,solved:false};
+
+function fig(cls,ghost){
+  const s=SH[cur],pts=s.p.map(q=>q.join(',')).join(' ');
+  return `<line class="ax" x1="-150" y1="0" x2="150" y2="0"/><line class="ax" x1="0" y1="-150" x2="0" y2="150"/>`+
+  (ghost?`<polygon class="gh" points="${pts}"/>`:'')+
+  `<g class="fig"><polygon class="sh ${cls}" points="${pts}"/><circle class="vd" cx="${s.p[0][0]}" cy="${s.p[0][1]}" r="8"/><text class="ff" x="${s.f[0]}" y="${s.f[1]}" style="font-size:${s.z}px">F</text></g>`;
+}
+function build(){
+  $('bM').innerHTML=fig('',mode==='p');
+  $('bT').innerHTML=fig('t',false);
+  paint();
+}
+const g=id=>$(id).querySelector('.fig');
+function paint(){
+  g('bM').setAttribute('transform',tf(M));
+  g('bT').setAttribute('transform',tf(mode==='q'?Q.T:I));
+  $('bM').classList.toggle('ok',mode==='q'&&Q.solved);
+  let t;
+  if(same(M,I)) t='처음 모양 그대로예요.';
+  else if(det(M)>0){const a=Math.round(((Math.atan2(M[1],M[0])*180/Math.PI)+360)%360);t=`시계 방향으로 ${a}° 돌아간 상태예요.`}
+  else{const a=Math.round(((Math.atan2(-M[1],-M[0])*180/Math.PI)+360)%360);t=a===0?'좌우로 뒤집힌 상태예요.':`좌우로 뒤집은 뒤 시계 방향으로 ${a}° 돌린 것과 같아요.`}
+  $('read').textContent=t;
+  $('hist').innerHTML=mode==='p'?hist.slice(-10).map(h=>`<span>${h}</span>`).join(''):'';
+  $('score').textContent=`맞힌 문제 ${Q.ok}개 / 확인 ${Q.tries}번`;
+}
+const opInfo=o=>({cw:[rotM(step),`시계 ${step}°`],ccw:[rotM(-step),`반시계 ${step}°`],h:[FH,'좌우 뒤집기'],v:[FV,'상하 뒤집기']})[o];
+function doOp(o){
+  if(busy||(mode==='q'&&Q.solved))return;
+  const [A,label]=opInfo(o),el=g('bM');
+  const anim=e=>o==='cw'?`rotate(${step*e})`:o==='ccw'?`rotate(${-step*e})`:o==='h'?`scale(${1-2*e} 1)`:`scale(1 ${1-2*e})`;
+  busy=true;
+  const dur=reduce?1:380,t0=performance.now();
+  (function fr(now){
+    const t=Math.min(1,(now-t0)/dur),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+    if(t<1){el.setAttribute('transform',tf(M,anim(e)));requestAnimationFrame(fr)}
+    else{M=mul(A,M);hist.push(label);busy=false;if(mode==='q')setMsg('');paint()}
+  })(t0);
+}
+function setMsg(t,good){$('msg').textContent=t;$('msg').classList.toggle('good',!!good)}
+function resetFig(){if(busy)return;M=I;hist=[];setMsg('');paint()}
+
+function newQuiz(){
+  const pool=Q.lv===1?[rotM(90),rotM(-90),rotM(180)]:[rotM(90),rotM(-90),FH,FV];
+  let T,flip;
+  do{T=I;flip=false;const n=Q.lv===1?1+(Math.random()*2|0):2+(Math.random()*2|0);
+    for(let i=0;i<n;i++){const o=pool[Math.random()*pool.length|0];if(o===FH||o===FV)flip=true;T=mul(o,T)}
+  }while(same(T,I)||(Q.lv===2&&!flip));
+  Q.T=T;Q.solved=false;M=I;hist=[];
+  $('check').textContent='정답 확인';
+  setMsg('왼쪽 목표와 똑같아지도록 오른쪽 도형을 돌리거나 뒤집어 보세요.');
+  build();
+}
+function check(){
+  if(busy)return;
+  if(Q.solved){newQuiz();return}
+  Q.tries++;
+  if(same(M,Q.T)){Q.ok++;Q.solved=true;$('check').textContent='다음 문제';setMsg('정답이에요! 목표 도형과 똑같이 맞췄어요.',true)}
+  else{
+    const fl=det(M)<0,tf_=det(Q.T)<0;
+    setMsg(fl!==tf_?(tf_?'아직 달라요. 목표 도형은 뒤집힌 모양이에요.':'아직 달라요. 목표 도형은 뒤집히지 않았어요.'):'뒤집힌 상태는 맞아요. 이제 방향과 각도를 맞춰 보세요.');
+  }
+  paint();
+}
+function setMode(m){
+  mode=m;
+  document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));
+  const q=m==='q';
+  $('stages').classList.toggle('q',q);$('figT').classList.toggle('hide',!q);
+  $('rowP').classList.toggle('hide',q);$('rowQ').classList.toggle('hide',!q);
+  $('capM').textContent=q?'내 도형':'내 도형 (점선은 처음 위치)';
+  step=90;setStep(90);
+  if(q)newQuiz();else{M=I;hist=[];setMsg('');build()}
+}
+function setStep(s){
+  step=s;
+  document.querySelectorAll('[data-s]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.s===s));
+  labels();
+}
+function labels(){$('lccw').textContent=`반시계 ${step}°`;$('lcw').textContent=`시계 ${step}°`}
+
+/* init */
+$('shapes').innerHTML=SH.map((s,i)=>`<button class="chip" data-i="${i}" aria-pressed="${i===0}"><svg viewBox="-100 -100 200 200"><polygon points="${s.p.map(q=>q.join(',')).join(' ')}" fill="#ffd25e" stroke="#1b2a49" stroke-width="7" stroke-linejoin="round"/></svg>${s.n}</button>`).join('');
+$('shapes').onclick=e=>{const b=e.target.closest('.chip');if(!b||busy)return;cur=+b.dataset.i;
+  document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===b));
+  M=I;hist=[];if(mode==='q')newQuiz();else build()};
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{if(!busy)setMode(b.dataset.m)});
+document.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>doOp(b.dataset.op));
+document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>setStep(+b.dataset.s));
+document.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{Q.lv=+b.dataset.l;
+  document.querySelectorAll('[data-l]').forEach(x=>x.setAttribute('aria-pressed',x===b));newQuiz()});
+$('reset').onclick=resetFig;$('reset2').onclick=resetFig;
+$('check').onclick=check;$('newq').onclick=()=>{if(!busy)newQuiz()};
+addEventListener('keydown',e=>{
+  const k={ArrowLeft:'ccw',ArrowRight:'cw',h:'h',v:'v'}[e.key];
+  if(k){if(e.key.startsWith('Arrow'))e.preventDefault();doOp(k)}
+});
+build();labels();
+</script>
+</body>
+</html>
