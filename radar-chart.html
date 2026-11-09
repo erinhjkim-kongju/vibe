@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>역량 레이더 비교</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: 평가 기록지 느낌 — 왼쪽 입력 시트, 오른쪽 차트 시트와 분석 요약. 좁은 화면에서는 세로 배치. */
+:root {
+  --bg: #eef1f5;
+  --surface: #ffffff;
+  --surface-2: #f6f8fb;
+  --ink: #18212e;
+  --muted: #5a6577;
+  --line: #d9dfe8;
+  --pre: #2563eb;
+  --post: #dc2626;
+  --up: #0f7a4a;
+  --down: #b42318;
+  --focus: #2563eb;
+  --btn: #18212e;
+  --btn-ink: #ffffff;
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-num: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151b; --surface: #19202a; --surface-2: #1f2733; --ink: #e8ecf2; --muted: #9ba5b5;
+    --line: #2c3542; --pre: #6b9bff; --post: #ff6f6f; --up: #4cc38a; --down: #ff8a80;
+    --focus: #6b9bff; --btn: #e8ecf2; --btn-ink: #11151b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151b; --surface: #19202a; --surface-2: #1f2733; --ink: #e8ecf2; --muted: #9ba5b5;
+  --line: #2c3542; --pre: #6b9bff; --post: #ff6f6f; --up: #4cc38a; --down: #ff8a80;
+  --focus: #6b9bff; --btn: #e8ecf2; --btn-ink: #11151b; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body);
+  font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 48px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; }
+header h1 { margin: 0; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
+header p { margin: 4px 0 0; color: var(--muted); font-size: 0.95rem; }
+.legend-key { display: flex; gap: 16px; font-size: 0.9rem; color: var(--muted); }
+.legend-key span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+.sw.pre { background: var(--pre); } .sw.post { background: var(--post); }
+
+.grid { display: grid; grid-template-columns: minmax(0, 440px) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 900px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+.sheet { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.sheet h2 { margin: 0; font-size: 1.05rem; font-weight: 700; }
+.sheet-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.label { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; color: var(--muted); }
+
+.meta { display: grid; grid-template-columns: minmax(0, 1fr) 120px; gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+input, select {
+  font: inherit; color: var(--ink); background: var(--surface-2); border: 1px solid var(--line);
+  border-radius: 6px; padding: 8px 10px; min-width: 0; width: 100%;
+}
+input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+input.invalid { border-color: var(--down); background: color-mix(in srgb, var(--down) 8%, var(--surface-2)); }
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+th { text-align: left; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em; color: var(--muted); padding: 0 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th.num, td.num { text-align: center; }
+td { padding: 6px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+td input.score { width: 68px; text-align: center; font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+th.c-pre { color: var(--pre); } th.c-post { color: var(--post); }
+.delta { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-weight: 600; font-size: 0.9rem; white-space: nowrap; }
+.delta.up { color: var(--up); } .delta.down { color: var(--down); } .delta.flat { color: var(--muted); }
+.icon-btn { background: none; border: 1px solid transparent; color: var(--muted); border-radius: 6px; width: 32px; height: 32px; cursor: pointer; font-size: 1.1rem; line-height: 1; }
+.icon-btn:hover:not(:disabled) { border-color: var(--line); color: var(--down); }
+.icon-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.row-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+button.btn {
+  font: inherit; font-weight: 600; font-size: 0.92rem; border-radius: 6px; padding: 9px 14px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+button.btn:hover:not(:disabled) { background: var(--surface-2); }
+button.btn.primary { background: var(--btn); color: var(--btn-ink); border-color: var(--btn); }
+button.btn.primary:hover:not(:disabled) { opacity: 0.88; background: var(--btn); }
+button.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.hint { font-size: 0.85rem; color: var(--muted); margin: 0; }
+.msg { font-size: 0.88rem; color: var(--down); margin: 0; min-height: 1.3em; }
+.msg.ok { color: var(--up); }
+
+.chart-box { width: 100%; }
+canvas { display: block; width: 100%; height: auto; }
+
+.summary { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; }
+.summary ul { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 6px; }
+.summary li { max-width: 72ch; }
+.summary b { font-weight: 600; }
+.n { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-weight: 600; }
+.n.pre { color: var(--pre); } .n.post { color: var(--post); }
+
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.stat { border-top: 2px solid var(--line); padding-top: 8px; }
+.stat .v { font-family: var(--font-num); font-size: 1.45rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.stat.pre { border-color: var(--pre); } .stat.post { border-color: var(--post); }
+.stat.pre .v { color: var(--pre); } .stat.post .v { color: var(--post); }
+
+.overlay { position: fixed; inset: 0; background: rgba(10, 14, 20, 0.6); display: flex; align-items: center; justify-content: center; padding: 24px; z-index: 20; }
+.overlay-card { background: var(--surface); border-radius: 10px; padding: 18px; max-width: 760px; width: 100%; display: flex; flex-direction: column; gap: 12px; max-height: 90vh; overflow: auto; }
+.overlay-card img { border: 1px solid var(--line); border-radius: 6px; }
+@media (max-width: 480px) {
+  .meta { grid-template-columns: minmax(0, 1fr); }
+  td input.score { width: 56px; }
+  .stats { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); }
+  .stat .v { font-size: 1.15rem; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>역량 레이더 비교</h1>
+      <p>영역별 자기평가 점수 입력 → 사전·사후 결과를 하나의 레이더 차트에 겹쳐 비교</p>
+    </div>
+    <div class="legend-key" aria-hidden="true">
+      <span><i class="sw pre"></i>사전 평가</span>
+      <span><i class="sw post"></i>사후 평가</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- 입력 시트 -->
+    <section class="sheet" aria-labelledby="in-title">
+      <div class="sheet-head">
+        <h2 id="in-title">점수 입력</h2>
+        <button class="btn" id="btn-sample" type="button">초기 데이터로 되돌리기</button>
+      </div>
+      <div class="meta">
+        <label class="field"><span class="label">차트 제목</span>
+          <input id="title" type="text" maxlength="40"></label>
+        <label class="field"><span class="label">척도 (만점)</span>
+          <select id="scale">
+            <option value="5">5점</option>
+            <option value="7">7점</option>
+            <option value="10">10점</option>
+            <option value="100">100점</option>
+          </select></label>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>영역명</th><th class="num c-pre">사전</th><th class="num c-post">사후</th><th class="num">변화</th><th><span class="label" style="position:absolute;left:-9999px">삭제</span></th></tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="row-actions">
+        <button class="btn" id="btn-add" type="button">+ 영역 추가</button>
+        <button class="btn" id="btn-clear" type="button">점수 비우기</button>
+      </div>
+      <p class="msg" id="in-msg" role="status"></p>
+      <p class="hint">영역은 3~12개. 값 수정 시 차트와 요약에 즉시 반영. 소수점 첫째 자리까지 입력 가능.</p>
+    </section>
+
+    <!-- 차트 시트 -->
+    <section class="sheet" aria-label="레이더 차트와 분석 요약">
+      <div class="sheet-head" style="justify-content:flex-end">
+        <div class="row-actions">
+          <button class="btn primary" id="btn-png" type="button">차트 이미지 저장</button>
+        </div>
+      </div>
+      <div class="chart-box" id="chart-box">
+        <canvas id="chart" role="img" aria-label="사전·사후 평가 레이더 차트"></canvas>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="sheet-head">
+        <h2>분석 요약</h2>
+        <div class="row-actions">
+          <button class="btn" id="btn-copy" type="button">요약 복사</button>
+          <button class="btn" id="btn-txt" type="button">요약 저장(.txt)</button>
+        </div>
+      </div>
+      <div class="summary" id="summary"></div>
+      <p class="msg" id="out-msg" role="status"></p>
+    </section>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="overlay-card" role="dialog" aria-modal="true" aria-labelledby="ov-title">
+    <div class="sheet-head">
+      <h2 id="ov-title" style="margin:0;font-size:1.05rem">차트 이미지</h2>
+      <button class="btn" id="ov-close" type="button">닫기</button>
+    </div>
+    <p class="hint">이 화면에서는 직접 저장이 제한됨. 이미지를 우클릭(모바일은 길게 누르기)해 저장 가능.</p>
+    <img id="ov-img" alt="저장용 레이더 차트 이미지">
+  </div>
+</div>
+
+<script>
+(function () {
+  const SAMPLE = {
+    title: "디지털 리터러시 사전-사후 평가 비교 분석",
+    scale: 100,
+    rows: [
+      { name: "정보검색 능력", pre: 45, post: 78 },
+      { name: "비판적 사고", pre: 38, post: 71 },
+      { name: "디지털 도구 활용", pre: 52, post: 85 },
+      { name: "협업 능력", pre: 60, post: 80 },
+      { name: "창의적 문제해결", pre: 41, post: 75 }
+    ]
+  };
+  const KEY = "competency-radar-v2";
+  let state = load() || clone(SAMPLE);
+
+  const $ = (id) => document.getElementById(id);
+  const rowsEl = $("rows"), titleEl = $("title"), scaleEl = $("scale");
+  const canvas = $("chart"), box = $("chart-box");
+
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function load() {
+    try { const s = localStorage.getItem(KEY); if (!s) return null; const o = JSON.parse(s); return (o && Array.isArray(o.rows) && o.rows.length >= 3) ? o : null; } catch (e) { return null; }
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  function isNum(v) { return typeof v === "number" && isFinite(v); }
+  function fmt(v) { return state.scale >= 100 ? (Math.round(v * 10) / 10).toString() : v.toFixed(1); }
+  function fmtD(d) { return (d > 0 ? "+" : d < 0 ? "−" : "±") + fmt(Math.abs(d)); }
+
+  /* ---------- 입력 테이블 ---------- */
+  function renderRows() {
+    rowsEl.innerHTML = "";
+    state.rows.forEach((r, i) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML =
+        '<td><input type="text" id="name-' + i + '" maxlength="16" aria-label="영역명 ' + (i + 1) + '"></td>' +
+        '<td class="num"><input class="score" type="number" inputmode="decimal" step="0.1" min="0" id="pre-' + i + '" aria-label="사전 점수 ' + (i + 1) + '"></td>' +
+        '<td class="num"><input class="score" type="number" inputmode="decimal" step="0.1" min="0" id="post-' + i + '" aria-label="사후 점수 ' + (i + 1) + '"></td>' +
+        '<td class="num"><span class="delta" id="d-' + i + '"></span></td>' +
+        '<td><button class="icon-btn" type="button" id="del-' + i + '" aria-label="' + (i + 1) + '번째 영역 삭제" title="영역 삭제">×</button></td>';
+      rowsEl.appendChild(tr);
+      const n = tr.querySelector("#name-" + i), p = tr.querySelector("#pre-" + i), q = tr.querySelector("#post-" + i);
+      n.value = r.name; p.value = isNum(r.pre) ? r.pre : ""; q.value = isNum(r.post) ? r.post : "";
+      p.max = q.max = state.scale;
+      n.addEventListener("input", () => { r.name = n.value; update(); });
+      p.addEventListener("input", () => { r.pre = parse(p.value); update(); });
+      q.addEventListener("input", () => { r.post = parse(q.value); update(); });
+      const del = tr.querySelector("#del-" + i);
+      del.disabled = state.rows.length <= 3;
+      del.addEventListener("click", () => { state.rows.splice(i, 1); renderRows(); update(); });
+    });
+    $("btn-add").disabled = state.rows.length >= 12;
+  }
+  function parse(v) { if (v === "" || v == null) return null; const x = Number(v); return isFinite(x) ? x : null; }
+
+  function validate() {
+    let bad = 0, empty = 0, noname = 0;
+    state.rows.forEach((r, i) => {
+      ["pre", "post"].forEach((k) => {
+        const el = $(k + "-" + i); const v = r[k];
+        const invalid = v != null && (v < 0 || v > state.scale);
+        if (v == null) empty++; if (invalid) bad++;
+        el.classList.toggle("invalid", invalid || v == null);
+      });
+      const nm = $("name-" + i); const missing = !r.name.trim();
+      if (missing) noname++; nm.classList.toggle("invalid", missing);
+      const d = $("d-" + i);
+      if (isNum(r.pre) && isNum(r.post)) {
+        const delta = r.post - r.pre;
+        d.textContent = fmtD(delta);
+        d.className = "delta " + (delta > 0.0001 ? "up" : delta < -0.0001 ? "down" : "flat");
+      } else { d.textContent = "–"; d.className = "delta flat"; }
+    });
+    const msgs = [];
+    if (bad) msgs.push("0~" + state.scale + " 범위를 벗어난 점수 " + bad + "개");
+    if (empty) msgs.push("비어 있는 점수 " + empty + "개(차트에서 0점 처리)");
+    if (noname) msgs.push("영역명 미입력 " + noname + "개");
+    $("in-msg").textContent = msgs.length ? "확인 필요: " + msgs.join(", ") : "";
+  }
+
+  function clampV(v) { return isNum(v) ? Math.max(0, Math.min(state.scale, v)) : 0; }
+
+  /* ---------- 차트 ---------- */
+  function palette(forExport) {
+    if (forExport) return { bg: "#ffffff", ink: "#18212e", muted: "#5a6577", grid: "#d9dfe8", gridStrong: "#b7c0cd", pre: "#2563eb", post: "#dc2626" };
+    const cs = getComputedStyle(document.documentElement);
+    const g = (n) => cs.getPropertyValue(n).trim();
+    return { bg: g("--surface"), ink: g("--ink"), muted: g("--muted"), grid: g("--line"), gridStrong: g("--muted"), pre: g("--pre"), post: g("--post") };
+  }
+  function alpha(hex, a) {
+    const h = hex.replace("#", ""); const f = h.length === 3 ? h.split("").map((c) => c + c).join("") : h;
+    const n = parseInt(f, 16); return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + a + ")";
+  }
+  const FONT = '"IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif';
+  const MONO = '"IBM Plex Mono", ui-monospace, Menlo, monospace';
+
+  function draw(ctx, W, H, pal, opts) {
+    const rows = state.rows, N = rows.length, M = state.scale;
+    const fs = Math.max(12, Math.min(17, W / 46));
+    ctx.fillStyle = pal.bg; ctx.fillRect(0, 0, W, H);
+
+    let top = 0;
+    if (opts.header) {
+      ctx.fillStyle = pal.ink; ctx.font = "700 " + Math.round(fs * 1.35) + "px " + FONT;
+      ctx.textAlign = "left"; ctx.textBaseline = "top";
+      const tSize = Math.round(fs * 1.35), maxW = W - fs * 3.2;
+      const words = (state.title || "역량 평가 결과").trim().split(/\s+/);
+      const lines = []; let cur = "";
+      words.forEach((w) => { const t = cur ? cur + " " + w : w; if (cur && ctx.measureText(t).width > maxW) { lines.push(cur); cur = w; } else cur = t; });
+      if (cur) lines.push(cur);
+      ctx.textAlign = "center";
+      lines.slice(0, 2).forEach((ln, i) => ctx.fillText(ln, W / 2, fs * 1.4 + i * tSize * 1.3, maxW));
+      top = fs * 1.4 + Math.min(2, lines.length) * tSize * 1.3 + fs * 0.3;
+    }
+    // legend
+    const ly = top + fs * 1.0;
+    ctx.font = "500 " + Math.round(fs * 0.95) + "px " + FONT; ctx.textBaseline = "middle"; ctx.textAlign = "left";
+    const items = [["사전 평가", pal.pre], ["사후 평가", pal.post]];
+    const widths = items.map((it) => fs * 1.0 + 6 + ctx.measureText(it[0]).width);
+    let lx = (W - (widths[0] + widths[1] + fs * 1.4)) / 2;
+    items.forEach((it, i) => {
+      ctx.fillStyle = alpha(it[1], 0.25); ctx.strokeStyle = it[1]; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.rect(lx, ly - fs * 0.45, fs * 0.9, fs * 0.9); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = pal.ink; ctx.fillText(it[0], lx + fs * 1.0 + 6, ly);
+      lx += widths[i] + fs * 1.4;
+    });
+    ctx.fillStyle = pal.muted; ctx.textAlign = "right"; ctx.font = "400 " + Math.round(fs * 0.85) + "px " + FONT;
+    ctx.fillText(M + "점 척도", W - fs * 1.2, ly);
+
+    const plotTop = ly + fs * 2.8;
+    const labelW = fs * 6.2, labelH = fs * 2.9;
+    const r = Math.max(40, Math.min((W - 2 * labelW) / 2, (H - plotTop - 2 * labelH) / 2));
+    const cx = W / 2, cy = plotTop + labelH + r;
+    const ang = (i) => -Math.PI / 2 + (2 * Math.PI * i) / N;
+    const pt = (i, v) => [cx + Math.cos(ang(i)) * r * (v / M), cy + Math.sin(ang(i)) * r * (v / M)];
+
+    // grid rings
+    const rings = M <= 10 ? M : 5;
+    for (let k = 1; k <= rings; k++) {
+      const v = (M / rings) * k;
+      ctx.beginPath();
+      for (let i = 0; i < N; i++) { const p = pt(i, v); i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); }
+      ctx.closePath(); ctx.strokeStyle = k === rings ? pal.gridStrong : pal.grid; ctx.lineWidth = k === rings ? 1.4 : 1; ctx.stroke();
+    }
+    // spokes
+    for (let i = 0; i < N; i++) { const p = pt(i, M); ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(p[0], p[1]); ctx.strokeStyle = pal.grid; ctx.lineWidth = 1; ctx.stroke(); }
+    // ring values along first axis
+    ctx.font = "500 " + Math.round(fs * 0.72) + "px " + MONO; ctx.fillStyle = pal.muted; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+    const step = rings > 5 ? 2 : 1;
+    for (let k = step; k <= rings; k += step) { const v = (M / rings) * k; const p = pt(0, v); ctx.fillText(String(Math.round(v * 10) / 10), p[0] + 5, p[1] + 1); }
+
+    // series
+    function series(key, color) {
+      ctx.beginPath();
+      rows.forEach((row, i) => { const p = pt(i, clampV(row[key])); i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); });
+      ctx.closePath(); ctx.fillStyle = alpha(color, 0.16); ctx.fill();
+      ctx.strokeStyle = color; ctx.lineWidth = Math.max(2, fs * 0.16); ctx.lineJoin = "round"; ctx.stroke();
+      rows.forEach((row, i) => { const p = pt(i, clampV(row[key])); ctx.beginPath(); ctx.arc(p[0], p[1], Math.max(3, fs * 0.26), 0, Math.PI * 2); ctx.fillStyle = pal.bg; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = color; ctx.stroke(); });
+    }
+    series("pre", pal.pre);
+    series("post", pal.post);
+
+    // axis labels: 영역명 + 사전 → 사후
+    rows.forEach((row, i) => {
+      const a = ang(i), c = Math.cos(a), s = Math.sin(a);
+      const lx = cx + c * (r + fs * 0.9), lyy = cy + s * (r + fs * 0.9);
+      const align = Math.abs(c) < 0.2 ? "center" : c > 0 ? "left" : "right";
+      const nameY = s < -0.2 ? lyy - fs * 1.25 : s > 0.2 ? lyy + fs * 0.15 : lyy - fs * 0.55;
+      ctx.textBaseline = "middle"; ctx.textAlign = align;
+      ctx.font = "600 " + Math.round(fs) + "px " + FONT; ctx.fillStyle = pal.ink;
+      const name = (row.name || "(영역 " + (i + 1) + ")").trim();
+      ctx.fillText(name, lx, nameY, labelW * 1.15);
+      // score line
+      ctx.font = "600 " + Math.round(fs * 0.88) + "px " + MONO;
+      const a1 = isNum(row.pre) ? fmt(row.pre) : "–", a2 = " → ", a3 = isNum(row.post) ? fmt(row.post) : "–";
+      const w1 = ctx.measureText(a1).width, w2 = ctx.measureText(a2).width, w3 = ctx.measureText(a3).width, tw = w1 + w2 + w3;
+      let x0 = align === "center" ? lx - tw / 2 : align === "left" ? lx : lx - tw;
+      const sy = nameY + fs * 1.15;
+      ctx.textAlign = "left";
+      ctx.fillStyle = pal.pre; ctx.fillText(a1, x0, sy);
+      ctx.fillStyle = pal.muted; ctx.fillText(a2, x0 + w1, sy);
+      ctx.fillStyle = pal.post; ctx.fillText(a3, x0 + w1 + w2, sy);
+    });
+  }
+
+  function sizeFor(w) { return { W: w, H: Math.round(w * (w < 520 ? 1.2 : 0.98)) }; }
+  function renderChart() {
+    const w = Math.max(300, Math.floor(box.clientWidth));
+    const { W, H } = sizeFor(w);
+    const dpr = Math.min(3, window.devicePixelRatio || 1);
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    canvas.style.aspectRatio = W + " / " + H;
+    const ctx = canvas.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw(ctx, W, H, palette(false), { header: true });
+  }
+  function exportCanvas() {
+    const W = 1000, H = 1000, scale = 2;
+    const c = document.createElement("canvas"); c.width = W * scale; c.height = H * scale;
+    const ctx = c.getContext("2d"); ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    draw(ctx, W, H, palette(true), { header: true });
+    // footer
+    const a = analyze();
+    ctx.font = "500 15px " + FONT; ctx.fillStyle = "#5a6577"; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    if (a) ctx.fillText("전체 평균  사전 " + fmt(a.preAvg) + "  →  사후 " + fmt(a.postAvg) + "  (" + fmtD(a.diff) + "점)", 26, H - 22);
+    return c;
+  }
+
+  /* ---------- 분석 ---------- */
+  function analyze() {
+    const rs = state.rows.filter((r) => isNum(r.pre) && isNum(r.post)).map((r) => ({ name: r.name.trim() || "(이름 없음)", pre: r.pre, post: r.post, d: r.post - r.pre }));
+    if (rs.length < 1) return null;
+    const avg = (arr) => arr.reduce((s, x) => s + x, 0) / arr.length;
+    const preAvg = avg(rs.map((r) => r.pre)), postAvg = avg(rs.map((r) => r.post)), diff = postAvg - preAvg;
+    const eps = 0.0001;
+    const up = rs.filter((r) => r.d > eps), down = rs.filter((r) => r.d < -eps), flat = rs.filter((r) => Math.abs(r.d) <= eps);
+    const byGain = rs.slice().sort((a, b) => b.d - a.d);
+    const byPost = rs.slice().sort((a, b) => b.post - a.post);
+    return { rs, preAvg, postAvg, diff, up, down, flat, byGain, byPost, incomplete: state.rows.length - rs.length };
+  }
+  function names(list) { return list.map((r) => r.name).join(", "); }
+  function summaryLines(a) {
+    const M = state.scale, L = [];
+    const pct = a.preAvg > 0 ? (a.diff / a.preAvg) * 100 : null;
+    L.push({ t: "평가 개요", h: "평가 영역 " + a.rs.length + "개, " + M + "점 척도 기준 사전·사후 자기평가 비교" + (a.incomplete ? " (점수 미입력 " + a.incomplete + "개 영역 제외)" : "") });
+    const dir = a.diff > 0.0001 ? "상승" : a.diff < -0.0001 ? "하락" : "변화 없음";
+    L.push({ t: "전체 평균", h: "사전 <span class='n pre'>" + fmt(a.preAvg) + "</span>점에서 사후 <span class='n post'>" + fmt(a.postAvg) + "</span>점으로 <span class='n'>" + fmt(Math.abs(a.diff)) + "</span>점 " + dir + (pct != null && Math.abs(a.diff) > 0.0001 ? " (" + (pct > 0 ? "+" : "") + pct.toFixed(1) + "%)" : ""),
+      p: "사전 " + fmt(a.preAvg) + "점에서 사후 " + fmt(a.postAvg) + "점으로 " + fmt(Math.abs(a.diff)) + "점 " + dir + (pct != null && Math.abs(a.diff) > 0.0001 ? " (" + (pct > 0 ? "+" : "") + pct.toFixed(1) + "%)" : "") });
+    L.push({ t: "변화 분포", h: "향상 " + a.up.length + "개 · 하락 " + a.down.length + "개 · 변화 없음 " + a.flat.length + "개 영역" });
+    const best = a.byGain[0];
+    if (best && best.d > 0.0001) {
+      const tops = a.byGain.filter((r) => r.d > 0.0001).slice(0, 2);
+      L.push({ t: "가장 큰 향상", h: tops.map((r) => "<b>" + esc(r.name) + "</b>(" + fmtD(r.d) + ")").join(", ") + " 영역의 성장 폭 두드러짐",
+        p: tops.map((r) => r.name + "(" + fmtD(r.d) + ")").join(", ") + " 영역의 성장 폭 두드러짐" });
+    }
+    const strong = a.byPost.slice(0, 2);
+    L.push({ t: "상대적 강점(사후)", h: strong.map((r) => "<b>" + esc(r.name) + "</b>(" + fmt(r.post) + "점)").join(", ") + " 영역의 사후 점수 최상위",
+      p: strong.map((r) => r.name + "(" + fmt(r.post) + "점)").join(", ") + " 영역의 사후 점수 최상위" });
+    const weak = a.byPost.slice(-2).reverse().filter((r) => !strong.includes(r));
+    if (weak.length) {
+      const smallGain = a.byGain.filter((r) => r.d <= 0.0001 || r === a.byGain[a.byGain.length - 1]).slice(-1)[0];
+      L.push({ t: "보완 필요", h: weak.map((r) => "<b>" + esc(r.name) + "</b>(" + fmt(r.post) + "점)").join(", ") + " 영역의 사후 점수 상대적 저조로 후속 지원 필요",
+        p: weak.map((r) => r.name + "(" + fmt(r.post) + "점)").join(", ") + " 영역의 사후 점수 상대적 저조로 후속 지원 필요" });
+      if (smallGain && a.down.length === 0 && a.rs.length > 2 && smallGain.d < a.diff) {
+        L.push({ t: "변화 폭 최소", h: "<b>" + esc(smallGain.name) + "</b>(" + fmtD(smallGain.d) + ") 영역의 향상 폭 가장 작음",
+          p: smallGain.name + "(" + fmtD(smallGain.d) + ") 영역의 향상 폭 가장 작음" });
+      }
+    }
+    if (a.down.length) {
+      L.push({ t: "하락 영역", h: a.down.map((r) => "<b>" + esc(r.name) + "</b>(" + fmtD(r.d) + ")").join(", ") + " 영역의 점수 하락으로 원인 재점검 필요",
+        p: names(a.down.map((r) => ({ name: r.name + "(" + fmtD(r.d) + ")" }))) + " 영역의 점수 하락으로 원인 재점검 필요" });
+    }
+    return L;
+  }
+  function esc(s) { return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+  function plain(L) { return L.map((l) => "- " + l.t + ": " + (l.p || l.h.replace(/<[^>]+>/g, ""))).join("\n"); }
+
+  function renderSummary() {
+    const a = analyze(), sEl = $("summary"), st = $("stats");
+    if (!a) { sEl.innerHTML = "<p class='hint'>사전·사후 점수가 모두 입력된 영역이 있을 때 요약 표시.</p>"; st.innerHTML = ""; return; }
+    st.innerHTML =
+      "<div class='stat pre'><div class='label'>사전 평균</div><div class='v'>" + fmt(a.preAvg) + "</div></div>" +
+      "<div class='stat post'><div class='label'>사후 평균</div><div class='v'>" + fmt(a.postAvg) + "</div></div>" +
+      "<div class='stat'><div class='label'>평균 변화</div><div class='v' style='color:var(" + (a.diff >= 0 ? "--up" : "--down") + ")'>" + fmtD(a.diff) + "</div></div>";
+    const L = summaryLines(a);
+    sEl.innerHTML = "<ul>" + L.map((l) => "<li><b>" + l.t + "</b> — " + l.h + "</li>").join("") + "</ul>";
+  }
+  function summaryText() {
+    const a = analyze(); if (!a) return "";
+    const head = "[" + (state.title || "역량 평가 결과") + "] 분석 요약\n";
+    const table = "\n영역별 점수 (사전 → 사후, 변화)\n" + state.rows.map((r) => "· " + (r.name.trim() || "(이름 없음)") + ": " + (isNum(r.pre) ? fmt(r.pre) : "–") + " → " + (isNum(r.post) ? fmt(r.post) : "–") + (isNum(r.pre) && isNum(r.post) ? " (" + fmtD(r.post - r.pre) + ")" : "")).join("\n");
+    return head + plain(summaryLines(a)) + "\n" + table + "\n";
+  }
+
+  /* ---------- 업데이트 ---------- */
+  let raf = 0;
+  function update() {
+    validate(); save();
+    cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { renderChart(); renderSummary(); });
+  }
+  function syncMeta() { titleEl.value = state.title || ""; scaleEl.value = String(state.scale); }
+
+  titleEl.addEventListener("input", () => { state.title = titleEl.value; update(); });
+  scaleEl.addEventListener("change", () => { state.scale = Number(scaleEl.value); renderRows(); update(); });
+  $("btn-add").addEventListener("click", () => {
+    if (state.rows.length >= 12) return;
+    state.rows.push({ name: "새 영역", pre: null, post: null }); renderRows(); update();
+    const el = $("name-" + (state.rows.length - 1)); if (el) { el.focus(); el.select(); }
+  });
+  $("btn-clear").addEventListener("click", () => { state.rows.forEach((r) => { r.pre = null; r.post = null; }); renderRows(); update(); });
+  $("btn-sample").addEventListener("click", () => { state = clone(SAMPLE); syncMeta(); renderRows(); update(); flash("in-msg", "초기 데이터로 복원 완료", true); });
+
+  function flash(id, text, ok) { const el = $(id); el.textContent = text; el.classList.toggle("ok", !!ok); clearTimeout(el._t); el._t = setTimeout(() => { el.textContent = ""; el.classList.remove("ok"); if (id === "in-msg") validate(); }, 3200); }
+  function safeName(s) { return (s || "역량평가").replace(/[\\/:*?"<>|]+/g, "").trim().slice(0, 60) || "역량평가"; }
+
+  const standalone = !(window.claude && window.claude.use);
+  function directDownload(blob, filename) {
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }
+  let downloads = null;
+  if (window.claude && window.claude.use) { window.claude.use("downloads").then((d) => { downloads = d; }).catch(() => {}); }
+
+  $("btn-png").addEventListener("click", () => {
+    const c = exportCanvas();
+    c.toBlob(async (blob) => {
+      if (!blob) { flash("out-msg", "이미지 생성 실패. 다시 시도 필요."); return; }
+      if (standalone) { directDownload(blob, safeName(state.title) + "_레이더차트.png"); flash("out-msg", "차트 이미지 저장 완료", true); return; }
+      if (downloads) {
+        try { await downloads.save({ filename: safeName(state.title) + "_레이더차트.png", data: blob }); flash("out-msg", "차트 이미지 저장 완료", true); return; }
+        catch (e) {
+          if (e && e.code === "declined") { flash("out-msg", "저장 취소됨"); return; }
+          if (e && e.code === "rate_limited") { flash("out-msg", "저장 창이 이미 열려 있음. 잠시 후 다시 시도."); return; }
+        }
+      }
+      const url = c.toDataURL("image/png");
+      $("ov-img").src = url; $("overlay").hidden = false; $("ov-close").focus();
+    }, "image/png");
+  });
+  $("ov-close").addEventListener("click", () => { $("overlay").hidden = true; });
+  $("overlay").addEventListener("click", (e) => { if (e.target === $("overlay")) $("overlay").hidden = true; });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") $("overlay").hidden = true; });
+
+  $("btn-copy").addEventListener("click", () => {
+    const t = summaryText(); if (!t) return;
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents($("summary")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); flash("out-msg", "자동 복사 불가. 선택된 요약을 직접 복사 필요."); };
+    try { navigator.clipboard.writeText(t).then(() => flash("out-msg", "요약 복사 완료", true), fallback); } catch (e) { fallback(); }
+  });
+  $("btn-txt").addEventListener("click", async () => {
+    const t = summaryText(); if (!t) return;
+    if (standalone) { directDownload(new Blob([t], { type: "text/plain;charset=utf-8" }), safeName(state.title) + "_분석요약.txt"); flash("out-msg", "요약 텍스트 저장 완료", true); return; }
+    if (!downloads) { flash("out-msg", "이 화면에서는 파일 저장 불가. '요약 복사' 이용 권장."); return; }
+    try { await downloads.save({ filename: safeName(state.title) + "_분석요약.txt", data: t }); flash("out-msg", "요약 텍스트 저장 완료", true); }
+    catch (e) { flash("out-msg", e && e.code === "declined" ? "저장 취소됨" : "저장 실패. '요약 복사' 이용 권장."); }
+  });
+
+  // theme / resize redraw
+  if (window.ResizeObserver) new ResizeObserver(() => renderChart()).observe(box); else window.addEventListener("resize", renderChart);
+  try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderChart); } catch (e) {}
+  new MutationObserver(renderChart).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+  syncMeta(); renderRows(); validate(); renderChart(); renderSummary();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(renderChart);
+})();
+</script>
+
+</body>
+</html>
