@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#eaf5fb">
+<title>독도의 날 퀴즈</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: 한 화면 한 문제. 위쪽 진행 바(파도) + 문제 카드 + 2x2 큰 선택지 버튼, 태블릿 터치 우선 */
+:root {
+  --sky: #eaf5fb;        /* 배경: 맑은 동해 하늘 */
+  --paper: #ffffff;
+  --sea: #1769a8;        /* 주 색: 동해 바다 */
+  --sea-soft: #cfe6f5;
+  --rock: #3d4a52;       /* 글자: 독도 바위 */
+  --muted: #62727c;
+  --gull: #f2b632;       /* 포인트: 괭이갈매기 부리 */
+  --ok: #1f9d5b;
+  --ok-soft: #dcf4e6;
+  --no: #d9483b;
+  --no-soft: #fde4e1;
+  --line: #c9dce8;
+  --display: "Jua", "Noto Sans KR", system-ui, sans-serif;
+  --body: "Noto Sans KR", system-ui, -apple-system, "Apple SD Gothic Neo", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--sky);
+  color: var(--rock);
+  font-family: var(--body);
+  font-size: 18px;
+  line-height: 1.55;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 28px;
+  -webkit-tap-highlight-color: transparent;
+}
+.app { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+/* 상단 */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand svg { flex: none; }
+.brand h1 { font-family: var(--display); font-weight: 400; font-size: clamp(26px, 4.2vw, 36px); margin: 0; color: var(--sea); line-height: 1.1; }
+.brand p { margin: 2px 0 0; font-size: 15px; color: var(--muted); }
+.sound-btn {
+  font: 500 16px/1 var(--body); color: var(--sea); background: var(--paper);
+  border: 2px solid var(--line); border-radius: 999px; padding: 10px 16px; cursor: pointer;
+}
+.sound-btn[aria-pressed="false"] { color: var(--muted); }
+
+/* 진행 */
+.progress { display: flex; align-items: center; gap: 14px; }
+.progress-label { font-family: var(--display); font-size: 20px; color: var(--sea); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.dots { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; flex: 1; }
+.dot { height: 12px; border-radius: 6px; background: var(--sea-soft); transition: background .3s; }
+.dot.done-ok { background: var(--ok); }
+.dot.done-retry { background: var(--gull); }
+.dot.now { background: var(--sea); }
+.score-chip { font-family: var(--display); font-size: 20px; background: var(--paper); border: 2px solid var(--line); border-radius: 999px; padding: 4px 14px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* 문제 카드 */
+.card { background: var(--paper); border-radius: 22px; padding: clamp(20px, 4vw, 36px); box-shadow: 0 6px 0 var(--sea-soft); display: flex; flex-direction: column; gap: 22px; }
+.q-num { font-family: var(--display); font-size: 20px; color: var(--paper); background: var(--sea); align-self: flex-start; padding: 4px 16px; border-radius: 999px; }
+.q-text { font-family: var(--display); font-weight: 400; font-size: clamp(26px, 4.6vw, 38px); line-height: 1.35; margin: 0; text-wrap: balance; }
+
+.choices { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 560px) { .choices { grid-template-columns: 1fr; } }
+.choice {
+  display: flex; align-items: center; gap: 14px; min-height: 84px; width: 100%;
+  text-align: left; font: 500 clamp(20px, 3.2vw, 26px)/1.3 var(--body); color: var(--rock);
+  background: var(--paper); border: 3px solid var(--line); border-radius: 18px;
+  padding: 14px 18px; cursor: pointer; transition: transform .12s, border-color .2s, background .2s;
+}
+.choice:hover:not(:disabled) { border-color: var(--sea); }
+.choice:active:not(:disabled) { transform: scale(.98); }
+.choice:focus-visible, .sound-btn:focus-visible, .big-btn:focus-visible { outline: 4px solid var(--gull); outline-offset: 3px; }
+.choice .mark { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-family: var(--display); font-size: 22px; background: var(--sea-soft); color: var(--sea); }
+.choice.wrong { border-color: var(--no); background: var(--no-soft); color: var(--muted); }
+.choice.wrong .mark { background: var(--no); color: #fff; }
+.choice.right { border-color: var(--ok); background: var(--ok-soft); }
+.choice.right .mark { background: var(--ok); color: #fff; }
+.choice:disabled { cursor: default; }
+.choice.shake { animation: shake .4s; }
+.choice.pop { animation: pop .45s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
+@keyframes pop { 0%{transform:scale(1)} 40%{transform:scale(1.05)} 100%{transform:scale(1)} }
+
+/* 피드백 */
+.feedback { border-radius: 16px; padding: 16px 20px; display: flex; flex-direction: column; gap: 6px; }
+.feedback.no { background: var(--no-soft); border: 2px solid var(--no); }
+.feedback.ok { background: var(--ok-soft); border: 2px solid var(--ok); }
+.fb-title { font-family: var(--display); font-size: clamp(24px, 4vw, 30px); margin: 0; }
+.feedback.no .fb-title { color: var(--no); }
+.feedback.ok .fb-title { color: var(--ok); }
+.fb-text { margin: 0; font-size: 19px; }
+
+.actions { display: flex; justify-content: flex-end; }
+.big-btn {
+  font-family: var(--display); font-size: 26px; color: #fff; background: var(--sea);
+  border: none; border-radius: 18px; padding: 16px 34px; min-height: 64px; cursor: pointer;
+  box-shadow: 0 5px 0 #0f4c7a; transition: transform .1s, box-shadow .1s;
+}
+.big-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #0f4c7a; }
+.big-btn.alt { background: var(--paper); color: var(--sea); border: 3px solid var(--sea); box-shadow: 0 5px 0 var(--sea-soft); }
+
+/* 결과 */
+.result { text-align: center; align-items: center; }
+.result-score { font-family: var(--display); font-size: clamp(64px, 14vw, 110px); line-height: 1; color: var(--sea); margin: 0; font-variant-numeric: tabular-nums; }
+.result-score small { font-size: .4em; color: var(--muted); }
+.stars { font-size: 46px; letter-spacing: 6px; color: var(--gull); line-height: 1; }
+.stars .off { color: var(--sea-soft); }
+.result-msg { font-family: var(--display); font-size: clamp(24px, 4vw, 32px); margin: 0; }
+.result-sub { margin: 0; color: var(--muted); font-size: 18px; max-width: 34em; }
+.review { width: 100%; text-align: left; display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.review li { display: flex; gap: 12px; align-items: baseline; padding: 10px 14px; border-radius: 12px; background: var(--sky); font-size: 17px; }
+.review .tag { flex: none; font-family: var(--display); font-size: 16px; padding: 2px 10px; border-radius: 999px; color: #fff; }
+.review .tag.ok { background: var(--ok); }
+.review .tag.retry { background: var(--gull); color: var(--rock); }
+.review span:last-child { min-width: 0; }
+.result-actions { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+
+.foot { text-align: center; color: var(--muted); font-size: 15px; }
+
+/* 정답 축하 물결 */
+.burst { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 5; }
+.burst i { position: absolute; width: 14px; height: 14px; border-radius: 50%; opacity: 0; animation: fly 900ms ease-out forwards; }
+@keyframes fly { 0%{opacity:1; transform:translate(0,0) scale(1)} 100%{opacity:0; transform:translate(var(--dx), var(--dy)) scale(.4)} }
+
+@media (prefers-reduced-motion: reduce) {
+  .choice.shake, .choice.pop { animation: none; }
+  .burst { display: none; }
+  * { transition: none !important; }
+}
+
+/* 단독 실행용 기본 설정 */
+[hidden] { display: none !important; }
+html, body { height: auto; min-height: 100%; }
+body { margin: 0; padding-top: max(20px, env(safe-area-inset-top, 0px)); padding-bottom: max(28px, env(safe-area-inset-bottom, 0px)); -webkit-text-size-adjust: 100%; }
+button { touch-action: manipulation; }
+
+/* 핸드폰 화면 */
+@media (max-width: 480px) {
+  body { font-size: 17px; padding-top: max(14px, env(safe-area-inset-top, 0px)); padding-bottom: max(20px, env(safe-area-inset-bottom, 0px)); }
+  .app { gap: 14px; }
+  .brand { gap: 10px; }
+  .brand svg { width: 44px; height: 44px; }
+  .brand h1 { font-size: 25px; }
+  .brand p { font-size: 13px; }
+  .sound-btn { font-size: 14px; padding: 8px 12px; }
+  .progress { gap: 10px; }
+  .progress-label, .score-chip { font-size: 17px; }
+  .score-chip { padding: 3px 10px; }
+  .dots { gap: 4px; }
+  .dot { height: 10px; }
+  .card { padding: 18px; gap: 16px; border-radius: 18px; }
+  .q-num { font-size: 17px; padding: 3px 12px; }
+  .q-text { font-size: 23px; }
+  .choices { gap: 10px; }
+  .choice { min-height: 64px; font-size: 19px; padding: 12px 14px; gap: 12px; border-radius: 14px; }
+  .choice .mark { width: 36px; height: 36px; font-size: 18px; }
+  .feedback { padding: 14px 16px; }
+  .fb-title { font-size: 22px; }
+  .fb-text { font-size: 17px; }
+  .big-btn { font-size: 22px; padding: 14px 24px; min-height: 58px; }
+  .actions .big-btn, .result-actions .big-btn { width: 100%; }
+  .stars { font-size: 38px; }
+  .result-msg { font-size: 22px; }
+  .result-sub { font-size: 16px; }
+  .review li { flex-direction: column; gap: 4px; font-size: 16px; }
+  .foot { font-size: 13px; }
+}
+/* 아주 좁은 화면 */
+@media (max-width: 360px) {
+  .brand p { display: none; }
+  .q-text { font-size: 21px; }
+  .choice { font-size: 18px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">
+        <circle cx="28" cy="28" r="28" fill="#cfe6f5"/>
+        <path d="M9 36 L17 22 L22 27 L26 18 L31 36 Z" fill="#3d4a52"/>
+        <path d="M29 36 L35 25 L39 29 L42 23 L48 36 Z" fill="#62727c"/>
+        <path d="M4 38 Q11 34 18 38 T32 38 T46 38 T56 38 V56 H0 V38 Z" fill="#1769a8"/>
+        <path d="M30 14 q3 -3 6 0 q3 -3 6 0" stroke="#3d4a52" stroke-width="2" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h1>독도의 날 퀴즈</h1>
+        <p>10월 25일 독도의 날 기념 · 10문제</p>
+      </div>
+    </div>
+    <button class="sound-btn" id="soundBtn" type="button" aria-pressed="true">🔊 소리 켜짐</button>
+  </header>
+
+  <div class="progress" id="progressBar">
+    <span class="progress-label" id="progressLabel">1 / 10</span>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+    <span class="score-chip" id="scoreChip">0점</span>
+  </div>
+
+  <main id="stage"></main>
+
+  <p class="foot">처음에 맞히면 10점 · 다시 생각해서 맞히면 5점</p>
+</div>
+<div class="burst" id="burst"></div>
+
+<script>
+const QUESTIONS = [
+  { q: "‘독도의 날’은 언제일까요?", a: "10월 25일", w: ["3월 1일", "8월 15일", "10월 9일"],
+    exp: "1900년 10월 25일, 대한제국이 독도를 울릉도에 속한 우리 땅으로 정하는 칙령을 만들었어요. 그날을 기념해 10월 25일이 독도의 날이 되었어요." },
+  { q: "독도는 어느 바다에 있을까요?", a: "동해", w: ["서해", "남해", "제주 바다"],
+    exp: "독도는 우리나라 동쪽 바다, 동해 한가운데에 있는 섬이에요." },
+  { q: "독도의 주소는 어느 도, 어느 군에 속할까요?", a: "경상북도 울릉군", w: ["강원도 강릉시", "제주특별자치도 서귀포시", "전라남도 신안군"],
+    exp: "독도의 주소는 ‘경상북도 울릉군 울릉읍 독도리’예요." },
+  { q: "독도는 큰 섬 두 개로 이루어져 있어요. 두 섬의 이름은 무엇일까요?", a: "동도와 서도", w: ["남도와 북도", "큰섬과 작은섬", "해섬과 달섬"],
+    exp: "동쪽 섬은 ‘동도’, 서쪽 섬은 ‘서도’라고 불러요. 그 둘레에 작은 바위섬들이 많이 있어요." },
+  { q: "독도에서 가장 가까운 우리나라 섬은 어디일까요?", a: "울릉도", w: ["제주도", "강화도", "거제도"],
+    exp: "울릉도에서 독도까지는 약 87km예요. 날씨가 맑은 날에는 울릉도에서 독도가 보여요." },
+  { q: "신라 시대에 울릉도와 독도가 있던 ‘우산국’을 신라 땅으로 만든 장군은 누구일까요?", a: "이사부", w: ["을지문덕", "강감찬", "이순신"],
+    exp: "512년, 신라의 이사부 장군이 우산국을 신라에 속하게 했어요. 이때부터 독도는 우리 역사 속 땅이에요." },
+  { q: "조선 시대에 일본에 건너가 울릉도와 독도가 조선 땅임을 당당히 밝힌 사람은 누구일까요?", a: "안용복", w: ["장영실", "김정호", "허준"],
+    exp: "조선 숙종 때 어부 안용복은 일본에 직접 가서 울릉도와 독도가 조선의 땅이라고 주장했어요." },
+  { q: "독도에 많이 살며 ‘야옹’ 하고 고양이처럼 우는 새는 무엇일까요?", a: "괭이갈매기", w: ["까치", "참새", "펭귄"],
+    exp: "괭이갈매기는 울음소리가 고양이(괭이)를 닮아 붙은 이름이에요. 독도는 괭이갈매기가 알을 낳는 소중한 곳이에요." },
+  { q: "독도 바다에 물고기와 오징어 같은 수산 자원이 풍부한 까닭은 무엇일까요?", a: "차가운 바닷물과 따뜻한 바닷물이 만나서", w: ["바닷물이 아주 짜서", "섬에 사람이 많이 살아서", "바다가 아주 얕아서"],
+    exp: "독도 주변은 차가운 바닷물(한류)과 따뜻한 바닷물(난류)이 만나는 곳이라 물고기의 먹이가 많아요." },
+  { q: "지금 독도를 24시간 지키고 있는 사람들은 누구일까요?", a: "독도경비대", w: ["소방관", "우체부", "등대지기 로봇"],
+    exp: "경찰인 독도경비대원들이 독도에 머물며 우리 땅 독도를 지키고 있어요." },
+  { q: "독도는 우리나라의 어느 쪽 끝에 있는 섬일까요?", a: "동쪽 끝", w: ["서쪽 끝", "남쪽 끝", "북쪽 끝"],
+    exp: "독도는 우리나라 땅 가운데 가장 동쪽 끝에 있는 섬이에요." },
+  { q: "독도는 어떻게 만들어진 섬일까요?", a: "바닷속 화산이 터져서", w: ["사람들이 흙을 쌓아서", "빙하가 녹아서", "모래가 바람에 날려 와서"],
+    exp: "독도는 아주 먼 옛날 바닷속 화산 활동으로 생긴 화산섬이에요. 울릉도보다도 먼저 생겼어요." },
+  { q: "독도는 자연을 소중히 지키기 위해 나라에서 무엇으로 정해 두었을까요?", a: "천연기념물", w: ["놀이공원", "국제공항", "동물원"],
+    exp: "독도는 ‘독도 천연보호구역’이라는 이름의 천연기념물이에요. 그래서 함부로 동식물을 가져가거나 훼손하면 안 돼요." },
+  { q: "조선 시대 책에 나오는 독도의 옛 이름은 무엇일까요?", a: "우산도", w: ["탐라", "강화", "한라"],
+    exp: "조선 시대 책과 지도에는 독도가 ‘우산도’라는 이름으로 나와요." },
+  { q: "1900년 대한제국 칙령에 ‘돌섬’이라는 뜻으로 적힌 독도의 이름은 무엇일까요?", a: "석도", w: ["우도", "죽도", "마도"],
+    exp: "‘석(石)’은 돌이라는 뜻이에요. 대한제국은 칙령에 독도를 ‘석도’라고 적고 울릉군에 속하게 했어요." },
+  { q: "옛날 독도 바위 위에 무리 지어 살던 바다사자를 무엇이라고 불렀을까요?", a: "강치", w: ["해마", "고래상어", "바다거북"],
+    exp: "강치는 독도에 많이 살던 바다사자예요. 일제강점기에 마구 잡혀 지금은 독도에서 볼 수 없어요." },
+  { q: "신라 이사부 장군이 우산국을 신라 땅으로 만든 이야기가 적힌 역사책은 무엇일까요?", a: "삼국사기", w: ["동의보감", "난중일기", "택리지"],
+    exp: "고려 시대에 김부식이 펴낸 ‘삼국사기’에 이사부 장군과 우산국 이야기가 적혀 있어요." },
+  { q: "‘맑은 날에는 울릉도에서 독도가 보인다’라고 적은 조선 세종 때의 책은 무엇일까요?", a: "세종실록 지리지", w: ["훈민정음", "동의보감", "난중일기"],
+    exp: "‘세종실록 지리지’에는 우산(독도)과 무릉(울릉도) 두 섬이 멀지 않아 맑은 날 바라볼 수 있다고 적혀 있어요." },
+  { q: "가을에 독도 바위틈에 피는 보랏빛 바닷가 국화는 무엇일까요?", a: "해국", w: ["해바라기", "튤립", "장미"],
+    exp: "해국은 ‘바닷가에 피는 국화’라는 뜻이에요. 거센 바닷바람 속에서도 독도 바위틈에 꽃을 피워요." },
+  { q: "독도 주변 바닷속에 묻혀 있는 ‘불타는 얼음’이라 불리는 에너지 자원은 무엇일까요?", a: "메탄하이드레이트", w: ["다이아몬드", "석탄", "소금"],
+    exp: "메탄하이드레이트는 얼음처럼 생겼지만 불을 붙이면 타는 자원이에요. 미래 에너지로 주목받고 있어요." },
+  { q: "울릉도에서 독도에 가려면 무엇을 타고 가야 할까요?", a: "배", w: ["기차", "지하철", "버스"],
+    exp: "울릉도에서 독도까지는 여객선을 타고 가요. 바람과 파도가 거세면 배가 독도에 닿지 못하기도 해요." },
+  { q: "다음 중 독도 주변에 있는 바위의 이름이 아닌 것은 무엇일까요?", a: "흔들바위", w: ["독립문바위", "촛대바위", "삼형제굴바위"],
+    exp: "독도에는 독립문바위, 촛대바위, 삼형제굴바위 같은 재미있는 이름의 바위가 많아요. 흔들바위는 설악산에 있어요." },
+  { q: "밤에 배들이 길을 잃지 않도록 독도 동도에서 불을 밝히는 시설은 무엇일까요?", a: "등대", w: ["공항", "기차역", "놀이터"],
+    exp: "독도 동도에는 독도등대가 있어요. 밤바다를 지나는 배들에게 길을 알려 줘요." }
+];
+
+const MARKS = ["①", "②", "③", "④"];
+const $ = (id) => document.getElementById(id);
+const stage = $("stage"), dots = $("dots");
+
+let lastRound = [], seen = new Set();
+let order = [], idx = 0, score = 0, firstTry = true, results = [], soundOn = true, actx = null;
+
+try { soundOn = localStorage.getItem("dokdoQuizSound") !== "off"; } catch (e) {}
+renderSoundBtn();
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+/* 효과음: Web Audio 합성 */
+function ctx() {
+  if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } }
+  if (actx.state === "suspended") actx.resume();
+  return actx;
+}
+function tone(freq, start, dur, type = "sine", vol = 0.22) {
+  const c = ctx(); if (!c) return;
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, c.currentTime + start);
+  g.gain.exponentialRampToValueAtTime(vol, c.currentTime + start + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + start + dur);
+  o.connect(g).connect(c.destination);
+  o.start(c.currentTime + start); o.stop(c.currentTime + start + dur + 0.05);
+}
+function playCorrect() { if (!soundOn) return; tone(659, 0, .15, "triangle"); tone(784, .12, .15, "triangle"); tone(1047, .24, .3, "triangle"); }
+function playWrong() { if (!soundOn) return; tone(220, 0, .18, "square", .12); tone(185, .16, .28, "square", .12); }
+function playFinish() { if (!soundOn) return; [523, 659, 784, 1047, 784, 1047].forEach((f, i) => tone(f, i * .13, .22, "triangle")); }
+
+function renderSoundBtn() {
+  const b = $("soundBtn");
+  b.setAttribute("aria-pressed", soundOn ? "true" : "false");
+  b.textContent = soundOn ? "🔊 소리 켜짐" : "🔇 소리 꺼짐";
+}
+$("soundBtn").addEventListener("click", () => {
+  soundOn = !soundOn; renderSoundBtn();
+  try { localStorage.setItem("dokdoQuizSound", soundOn ? "on" : "off"); } catch (e) {}
+  if (soundOn) tone(880, 0, .1, "triangle");
+});
+
+function renderDots() {
+  dots.innerHTML = "";
+  for (let i = 0; i < 10; i++) {
+    const d = document.createElement("div");
+    d.className = "dot" + (i < results.length ? (results[i].ok ? " done-ok" : " done-retry") : i === idx ? " now" : "");
+    dots.appendChild(d);
+  }
+  $("progressLabel").textContent = `${Math.min(idx + 1, 10)} / 10`;
+  $("scoreChip").textContent = `${score}점`;
+}
+
+function start() {
+  const all = QUESTIONS.map((_, i) => i);
+  let pick;
+  if (!lastRound.length) {
+    pick = shuffle(all).slice(0, 10);
+  } else {
+    // 지난 판 문제는 1~3개만 다시, 나머지는 새 문제
+    const keep = shuffle(lastRound).slice(0, 1 + Math.floor(Math.random() * 3));
+    const notLast = all.filter((i) => !lastRound.includes(i));
+    const fresh = shuffle(notLast.filter((i) => !seen.has(i)));
+    const older = shuffle(notLast.filter((i) => seen.has(i)));
+    pick = keep.concat(fresh, older).slice(0, 10);
+  }
+  pick = shuffle(pick);
+  lastRound = pick;
+  pick.forEach((i) => seen.add(i));
+  if (seen.size >= QUESTIONS.length) seen = new Set(pick);
+  order = pick.map((i) => ({ ...QUESTIONS[i], opts: shuffle([QUESTIONS[i].a, ...QUESTIONS[i].w]) }));
+  idx = 0; score = 0; results = [];
+  $("progressBar").hidden = false;
+  showQuestion();
+}
+
+function showQuestion() {
+  firstTry = true;
+  const item = order[idx];
+  renderDots();
+  stage.innerHTML = `
+    <section class="card" aria-live="polite">
+      <span class="q-num">${idx + 1}번 문제</span>
+      <h2 class="q-text">${item.q}</h2>
+      <div class="choices">
+        ${item.opts.map((o, i) => `<button class="choice" type="button" id="opt${i}" data-v="${o}"><span class="mark">${MARKS[i]}</span><span>${o}</span></button>`).join("")}
+      </div>
+      <div id="fb"></div>
+      <div class="actions" id="act"></div>
+    </section>`;
+  stage.querySelectorAll(".choice").forEach((btn) => btn.addEventListener("click", () => choose(btn, item)));
+}
+
+function choose(btn, item) {
+  if (btn.disabled) return;
+  const fb = $("fb");
+  if (btn.dataset.v === item.a) {
+    btn.classList.add("right", "pop");
+    stage.querySelectorAll(".choice").forEach((b) => (b.disabled = true));
+    score += firstTry ? 10 : 5;
+    results.push({ q: item.q, a: item.a, ok: firstTry });
+    playCorrect(); burst(btn);
+    fb.innerHTML = `<div class="feedback ok"><p class="fb-title">${firstTry ? "정답이에요! +10점 🎉" : "맞았어요! +5점 👏"}</p><p class="fb-text">${item.exp}</p></div>`;
+    $("scoreChip").textContent = `${score}점`;
+    const last = idx === order.length - 1;
+    $("act").innerHTML = `<button class="big-btn" type="button" id="nextBtn">${last ? "결과 보기" : "다음 문제 →"}</button>`;
+    $("nextBtn").addEventListener("click", () => { idx++; last ? showResult() : showQuestion(); });
+    $("nextBtn").focus({ preventScroll: true });
+  } else {
+    firstTry = false;
+    btn.classList.add("wrong", "shake");
+    btn.disabled = true;
+    playWrong();
+    fb.innerHTML = `<div class="feedback no"><p class="fb-title">다시 생각해보세요 🤔</p><p class="fb-text">괜찮아요. 남은 보기 중에서 한 번 더 골라 보세요.</p></div>`;
+  }
+}
+
+function burst(btn) {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const r = btn.getBoundingClientRect(), box = $("burst");
+  const colors = ["#1769a8", "#f2b632", "#1f9d5b", "#7cc1ea"];
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement("i");
+    const ang = (Math.PI * 2 * i) / 18, dist = 80 + Math.random() * 70;
+    p.style.left = r.left + r.width / 2 + "px"; p.style.top = r.top + r.height / 2 + "px";
+    p.style.background = colors[i % 4];
+    p.style.setProperty("--dx", Math.cos(ang) * dist + "px");
+    p.style.setProperty("--dy", Math.sin(ang) * dist + "px");
+    box.appendChild(p);
+    setTimeout(() => p.remove(), 950);
+  }
+}
+
+function showResult() {
+  $("progressBar").hidden = true;
+  const firstCount = results.filter((r) => r.ok).length;
+  const starN = score >= 90 ? 3 : score >= 60 ? 2 : 1;
+  const msg = score === 100 ? "완벽해요! 독도 지킴이 인증! 🏅"
+    : score >= 80 ? "아주 잘했어요! 독도 박사가 다 되었네요"
+    : score >= 50 ? "잘했어요! 한 번 더 하면 더 잘할 수 있어요"
+    : "좋은 시작이에요! 다시 도전해 볼까요?";
+  playFinish();
+  stage.innerHTML = `
+    <section class="card result" aria-live="polite">
+      <div class="stars" aria-label="별 ${starN}개">${"★".repeat(starN)}<span class="off">${"★".repeat(3 - starN)}</span></div>
+      <p class="result-score">${score}<small>점 / 100점</small></p>
+      <p class="result-msg">${msg}</p>
+      <p class="result-sub">10문제 중 <b>${firstCount}문제</b>를 한 번에 맞혔어요(10점). 노란 표시는 다시 생각해서 맞힌 문제예요(5점).</p>
+      <ul class="review">
+        ${results.map((r, i) => `<li><span class="tag ${r.ok ? "ok" : "retry"}">${r.ok ? "한 번에 +10" : "다시 +5"}</span><span>${i + 1}. ${r.q} → <b>${r.a}</b></span></li>`).join("")}
+      </ul>
+      <p class="result-sub">다시 도전하면 이번 문제 중 3개 이하만 다시 나오고, 나머지는 새 문제가 나와요.</p>
+      <div class="result-actions">
+        <button class="big-btn" type="button" id="retryBtn">다시 도전하기 ↻</button>
+      </div>
+    </section>`;
+  $("retryBtn").addEventListener("click", start);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+start();
+</script>
+</body>
+</html>
